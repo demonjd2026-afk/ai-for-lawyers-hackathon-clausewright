@@ -1,5 +1,9 @@
 # Architecture
 
+![System architecture](architecture.svg)
+
+*Also available as [architecture.png](architecture.png) for slides.*
+
 ## Principle: one source of truth, three derived artifacts, one proof
 
 The **term sheet** (`backend/app/models.py`) is the only input. The contract text, the escrow settings and Schedule B are pure functions of it. The verifier does not trust the generator: it re-parses the output and checks everything against an independent derivation.

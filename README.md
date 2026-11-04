@@ -24,6 +24,12 @@ Built for the HackIndia **AI for Lawyers Hackathon 2026**, problem statement **P
 | **Recover** | Computes s.16 interest (monthly rests, rate history) and drafts an MSME demand notice. |
 | **Prove** | Hashes a file in the browser and drafts Part A of the BSA s.63(4) certificate, which requires the hash. |
 
+## Architecture
+
+![Clausewright system architecture: browser, API with a deterministic core and AI agents, and the chain](docs/architecture.svg)
+
+One term sheet drives everything. Fixed rules write the contract and hash it; the escrow's settings are derived from the same terms and printed in the contract as Schedule B; after deployment the on-chain state is read back and verified against the text, and the seal on the document fills only when all 63 checks agree. Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
 ## Results
 
 | Evaluation | Result |

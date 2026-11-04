@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#f5a524"/></marker>
+    <marker id="g" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#12b886"/></marker>
+    <marker id="n" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#93a0c9"/></marker>
+    <style>
+      .lane  { fill: #f7f8fc; stroke: #e4e8f1; stroke-width: 1; }
+      .laneT { font-size: 12px; font-weight: 700; fill: #7d879f; letter-spacing: 0.12em; }
+      .box   { fill: #ffffff; stroke: #cfd5e3; stroke-width: 1.2; }
+      .core  { fill: #ffffff; stroke: #091330; stroke-width: 1.4; }
+      .hi    { fill: #e7f8f2; stroke: #12b886; stroke-width: 1.6; }
+      .warm  { fill: #fff4dc; stroke: #f5a524; stroke-width: 1.6; }
+      .paper { fill: #fbf7ee; stroke: #e2d8bf; stroke-width: 1.2; }
+      .dark  { fill: #091330; stroke: #091330; }
+      .t  { fill: #091330; font-weight: 700; font-size: 15px; }
+      .tw { fill: #ffffff; font-weight: 700; font-size: 15px; }
+      .s  { fill: #4b536b; font-size: 12.5px; }
+      .sw { fill: #c3cbe6; font-size: 12.5px; }
+      .fa { fill: none; stroke: #f5a524; stroke-width: 2.4; marker-end: url(#a); }
+      .fg { fill: none; stroke: #12b886; stroke-width: 2.4; marker-end: url(#g); }
+      .fn { fill: none; stroke: #93a0c9; stroke-width: 1.6; marker-end: url(#n); }
+      .step { font-size: 12px; font-weight: 800; fill: #ffffff; }
+      .leg  { font-size: 13px; fill: #16254d; }
+      .legT { font-size: 13px; fill: #091330; font-weight: 700; }
+    </style>
+  </defs>
+
+  <rect width="1400" height="900" fill="#ffffff"/>
+  <text x="48" y="48" font-size="24" font-weight="700" fill="#091330">Clausewright — system architecture</text>
+  <text x="48" y="72" font-size="14" fill="#4b536b">One term sheet drives the contract, the escrow and the proof that they agree.</text>
+
+  <!-- ===================== BROWSER ===================== -->
+  <rect x="48" y="100" width="1304" height="132" rx="14" class="lane"/>
+  <text x="66" y="124" class="laneT">BROWSER</text>
+
+  <rect x="66" y="138" width="230" height="78" rx="10" class="core"/>
+  <text x="82" y="163" class="t">Draft wizard</text>
+  <text x="82" y="183" class="s">Describe, terms, checks, escrow;</text>
+  <text x="82" y="200" class="s">the contract under a hash seal.</text>
+
+  <rect x="312" y="138" width="196" height="78" rx="10" class="box"/>
+  <text x="328" y="163" class="t">Review</text>
+  <text x="328" y="183" class="s">Flags void and risky clauses</text>
+  <text x="328" y="200" class="s">in a draft you were sent.</text>
+
+  <rect x="524" y="138" width="196" height="78" rx="10" class="box"/>
+  <text x="540" y="163" class="t">Recover</text>
+  <text x="540" y="183" class="s">MSMED s.16 interest and</text>
+  <text x="540" y="200" class="s">demand notice.</text>
+
+  <rect x="736" y="138" width="196" height="78" rx="10" class="box"/>
+  <text x="752" y="163" class="t">Prove</text>
+  <text x="752" y="183" class="s">Hash a file locally; draft the</text>
+  <text x="752" y="200" class="s">BSA s.63 certificate.</text>
+
+  <rect x="1012" y="138" width="322" height="78" rx="10" class="warm"/>
+  <text x="1028" y="163" class="t">Chain client</text>
+  <text x="1028" y="183" class="s">Deploys and runs the escrow with test</text>
+  <text x="1028" y="200" class="s">accounts or a wallet (viem, lazy-loaded).</text>
+
+  <!-- ===================== API ===================== -->
+  <rect x="48" y="300" width="1304" height="300" rx="14" class="lane"/>
+  <text x="66" y="324" class="laneT">API · FASTAPI</text>
+
+  <!-- deterministic core -->
+  <rect x="66" y="338" width="866" height="118" rx="12" fill="none" stroke="#93a0c9" stroke-dasharray="5 4"/>
+  <text x="700" y="358" class="laneT" fill="#16254d" text-anchor="end">DETERMINISTIC CORE</text>
+
+  <rect x="80" y="370" width="196" height="72" rx="10" class="core"/>
+  <text x="96" y="395" class="t">Rules engine</text>
+  <text x="96" y="415" class="s">12 rule families, ~40 findings,</text>
+  <text x="96" y="431" class="s">one-click fixes.</text>
+
+  <rect x="296" y="370" width="196" height="72" rx="10" class="core"/>
+  <text x="312" y="395" class="t">Drafting engine</text>
+  <text x="312" y="415" class="s">Clause library → canonical</text>
+  <text x="312" y="431" class="s">text → SHA-256.</text>
+
+  <rect x="512" y="370" width="196" height="72" rx="10" class="core"/>
+  <text x="528" y="395" class="t">Escrow codegen</text>
+  <text x="528" y="415" class="s">Escrow settings derived from</text>
+  <text x="528" y="431" class="s">the terms, shown as Schedule B.</text>
+
+  <rect x="728" y="370" width="190" height="72" rx="10" class="hi"/>
+  <text x="744" y="395" class="t">Verifier</text>
+  <text x="744" y="415" class="s">Text, Schedule B and chain:</text>
+  <text x="744" y="431" class="s">63 checks must agree.</text>
+
+  <path class="fn" d="M276,406 L294,406"/>
+  <path class="fn" d="M492,406 L510,406"/>
+  <path class="fn" d="M708,406 L726,406"/>
+
+  <!-- AI agents -->
+  <rect x="66" y="470" width="866" height="114" rx="12" fill="none" stroke="#93a0c9" stroke-dasharray="5 4"/>
+  <text x="918" y="490" class="laneT" fill="#16254d" text-anchor="end">AI AGENTS</text>
+
+  <rect x="80" y="502" width="268" height="68" rx="10" class="box"/>
+  <text x="96" y="527" class="t">Intake agent</text>
+  <text x="96" y="547" class="s">Plain language → term sheet. Every</text>
+  <text x="96" y="563" class="s">value grounded in the user's own words.</text>
+
+  <rect x="366" y="502" width="268" height="68" rx="10" class="box"/>
+  <text x="382" y="527" class="t">Reviewer agent</text>
+  <text x="382" y="547" class="s">Rules first, then a model per clause</text>
+  <text x="382" y="563" class="s">citing only retrieved authorities.</text>
+
+  <rect x="652" y="502" width="266" height="68" rx="10" class="paper"/>
+  <text x="668" y="527" class="t">Legal knowledge base</text>
+  <text x="668" y="547" class="s">Closed, source-linked authorities;</text>
+  <text x="668" y="563" class="s">every citation comes from here.</text>
+
+  <!-- right column -->
+  <rect x="962" y="338" width="372" height="72" rx="10" class="box"/>
+  <text x="978" y="363" class="t">Documents and notices</text>
+  <text x="978" y="383" class="s">Word export with the hash in the footer, redlines,</text>
+  <text x="978" y="399" class="s">demand notice, s.63 certificate, stamp advice.</text>
+
+  <rect x="962" y="426" width="372" height="72" rx="10" class="warm"/>
+  <text x="978" y="451" class="t">/rpc demo chain proxy</text>
+  <text x="978" y="471" class="s">Allow-listed JSON-RPC to a Hardhat chain running</text>
+  <text x="978" y="487" class="s">beside the API, so the live site needs no wallet.</text>
+
+  <rect x="962" y="514" width="372" height="70" rx="10" class="dark"/>
+  <text x="978" y="539" class="tw">Model provider</text>
+  <text x="978" y="559" class="sw">Structured outputs: a response validates or is</text>
+  <text x="978" y="575" class="sw">rejected. Key from the environment only.</text>
+  <path class="fn" d="M918,549 L960,549"/>
+
+  <!-- ===================== CHAIN ===================== -->
+  <rect x="48" y="668" width="1304" height="112" rx="14" class="lane"/>
+  <text x="66" y="692" class="laneT">CHAIN · HOSTED DEMO CHAIN, LOCAL NODE OR SEPOLIA</text>
+
+  <rect x="66" y="704" width="440" height="60" rx="10" class="paper"/>
+  <text x="82" y="729" class="t">What the chain proves</text>
+  <text x="82" y="749" class="s">The exact text both parties saw, and settings equal to Schedule B.</text>
+
+  <rect x="522" y="704" width="250" height="60" rx="10" class="box"/>
+  <text x="538" y="729" class="t">DemoINR</text>
+  <text x="538" y="749" class="s">Test token with a faucet. No value.</text>
+
+  <rect x="788" y="704" width="546" height="60" rx="10" class="core"/>
+  <text x="804" y="729" class="t">ClausewrightEscrow</text>
+  <text x="804" y="749" class="s">Fixed, tested escrow: hash confirmed before funding; deemed acceptance; pull payments.</text>
+
+  <!-- ===================== FLOWS ===================== -->
+  <!-- 1: term sheet down -->
+  <path class="fa" d="M130,216 L130,368"/>
+  <circle cx="130" cy="262" r="11" fill="#f5a524"/><text x="126" y="266" class="step">1</text>
+  <!-- 2: contract back up -->
+  <path class="fa" d="M394,368 L394,262 L232,262 L232,218" stroke-dasharray="6 4"/>
+  <circle cx="312" cy="262" r="11" fill="#f5a524"/><text x="308" y="266" class="step">2</text>
+  <!-- 3: constructor args to chain client -->
+  <path class="fa" d="M610,368 L610,262 L1100,262 L1100,218"/>
+  <circle cx="860" cy="262" r="11" fill="#f5a524"/><text x="856" y="266" class="step">3</text>
+  <!-- 4: chain client transacts -->
+  <path class="fa" d="M1300,216 L1300,250 L1360,250 L1360,734 L1338,734"/>
+  <circle cx="1360" cy="500" r="11" fill="#f5a524"/><text x="1356" y="504" class="step">4</text>
+  <!-- 5: read back to verifier -->
+  <path class="fg" d="M944,702 L944,406 L920,406" stroke-dasharray="7 4"/>
+  <circle cx="944" cy="640" r="11" fill="#12b886"/><text x="940" y="644" class="step">5</text>
+  <!-- 6: seal fills -->
+  <path class="fg" d="M823,368 L823,318 L1240,318 L1240,218"/>
+  <circle cx="1030" cy="318" r="11" fill="#12b886"/><text x="1026" y="322" class="step">6</text>
+
+  <!-- ===================== LEGEND ===================== -->
+  <g transform="translate(66,812)">
+    <circle cx="0" cy="0" r="9" fill="#f5a524"/><text x="-4" y="4" class="step">1</text>
+    <text x="16" y="4" class="leg"><tspan class="legT">Term sheet</tspan> → rules, then drafting. Blocked until every must-fix finding is cleared.</text>
+    <circle cx="0" cy="26" r="9" fill="#f5a524"/><text x="-4" y="30" class="step">2</text>
+    <text x="16" y="30" class="leg"><tspan class="legT">Contract text, SHA-256 and Schedule B</tspan> return; the browser never sends contract text.</text>
+    <circle cx="640" cy="0" r="9" fill="#f5a524"/><text x="636" y="4" class="step">3</text>
+    <text x="656" y="4" class="leg"><tspan class="legT">Constructor arguments</tspan> go to the chain client, each traced to its clause.</text>
+    <circle cx="640" cy="26" r="9" fill="#f5a524"/><text x="636" y="30" class="step">4</text>
+    <text x="656" y="30" class="leg"><tspan class="legT">Deploy and transact:</tspan> confirm hash → fund → deliver → accept or deemed → withdraw.</text>
+    <circle cx="0" cy="52" r="9" fill="#12b886"/><text x="-4" y="56" class="step">5</text>
+    <text x="16" y="56" class="leg"><tspan class="legT">On-chain state is read back</tspan> and verified against the text and Schedule B.</text>
+    <circle cx="640" cy="52" r="9" fill="#12b886"/><text x="636" y="56" class="step">6</text>
+    <text x="656" y="56" class="leg"><tspan class="legT">All 63 checks agree</tspan> → the seal on the document fills.</text>
+  </g>
+</svg>
