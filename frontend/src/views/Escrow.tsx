@@ -1,10 +1,14 @@
-import { useEffect, useState } from "react";
+import { clsx } from "clsx";
+import { Check, Clock, ExternalLink, Loader2, RefreshCw, Rocket, Search, Wallet, X } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { Address } from "viem";
 import { api } from "../api";
 import {
   advanceLocalTime, chainTime, CHAINS, deployEscrow, devAccount, devSigner, ensureLocalToken, loadArtifacts,
   MILESTONE_STATE, publicClient, readEscrow, send, walletSigner, type ChainId, type OnchainState, type Role, type Signer,
 } from "../chain";
+import { Button } from "../components/ui/Button";
+import { Badge, Mono, Notice, PanelHeading, SectionTitle } from "../components/ui/Primitives";
 import type { DraftResult, TermSheet, Verification } from "../types";
 import { inr, shortHash } from "../util";
 
@@ -41,7 +45,29 @@ function explain(e: any): string {
   return hit ? REVERTS[hit] : e?.shortMessage ?? e?.message ?? String(e);
 }
 
+const ROLE_LABEL: Record<Role, string> = { payer: "client", payee: "provider", arbiter: "arbiter" };
+
 export interface Deployment { chain: ChainId; address: Address; tx?: string }
+
+/** One row of the escrow timeline: a status dot, a label, a state line and the actions open right now. */
+function Stage({ done, active, label, status, actions }: { done: boolean; active?: boolean; label: ReactNode; status: ReactNode; actions?: ReactNode }) {
+  return (
+    <li className="relative flex gap-3 pb-5 last:pb-0">
+      <span className="absolute top-6 bottom-0 left-[11px] w-px bg-mist-200 last:hidden" aria-hidden />
+      <span className={clsx("relative z-10 mt-0.5 grid size-6 shrink-0 place-items-center rounded-full border-2",
+        done ? "border-teal-500 bg-teal-500 text-white" : active ? "border-saffron-500 bg-white" : "border-mist-300 bg-white")} aria-hidden>
+        {done ? <Check className="size-3.5" strokeWidth={3} /> : active ? <span className="size-2 rounded-full bg-saffron-500" /> : null}
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <span className="font-semibold text-ink-900">{label}</span>
+          <span className="text-[0.82rem] text-mist-700">{status}</span>
+        </div>
+        {actions && <div className="mt-2 flex flex-wrap gap-2">{actions}</div>}
+      </div>
+    </li>
+  );
+}
 
 export function Escrow({ ts, draft, deployment, onDeployed, onVerified, onHighlight, onUseWallets }: {
   ts: TermSheet;
@@ -103,7 +129,7 @@ export function Escrow({ ts, draft, deployment, onDeployed, onVerified, onHighli
     setWallet(w);
     const want = r === "payer" ? p.payer : r === "payee" ? p.payee : p.arbiter;
     if (w.address.toLowerCase() !== want.toLowerCase()) {
-      throw new Error(`Switch your wallet to the ${r === "payer" ? "client" : r === "payee" ? "provider" : "arbiter"} account ${shortHash(want, 4)}.`);
+      throw new Error(`Switch your wallet to the ${ROLE_LABEL[r]} account ${shortHash(want, 4)}.`);
     }
     return w;
   };
@@ -125,7 +151,7 @@ export function Escrow({ ts, draft, deployment, onDeployed, onVerified, onHighli
     });
 
   const fund = () =>
-    run("Funding", async () => {
+    run("Depositing the fee", async () => {
       const { token, escrow } = await loadArtifacts();
       const s = await signer("payer");
       const bal = (await publicClient(chainId).readContract({
@@ -149,150 +175,167 @@ export function Escrow({ ts, draft, deployment, onDeployed, onVerified, onHighli
     ["termsHash", p.terms_hash, draft.escrow!.clause_map.termsHash ?? []],
   ];
 
+  // On the local chain the user plays each party in turn; on a public chain the wallet decides.
+  const may = (r: Role) => (local ? role === r : true);
+  const can = !busy;
+  const explorer = deployment && CHAINS[deployment.chain].explorer;
+
   return (
-    <section aria-labelledby="escrow-h">
-      <h2 id="escrow-h">Escrow bound to this contract</h2>
-      <p className="lede">The escrow is a fixed, tested contract. Only its settings come from your terms, and each setting traces to the
-        clause that governs it. Select a row to see the clause.</p>
+    <section aria-labelledby="escrow-h" className="space-y-6">
+      <PanelHeading id="escrow-h" title="Escrow bound to this contract"
+        lede="The escrow is one fixed, tested contract. Only its settings come from your terms, and each setting traces to the clause that governs it. Point at a row to see the clause on the page." />
 
-      <table className="map">
-        <thead><tr><th scope="col">Setting</th><th scope="col">Value</th><th scope="col">Clause</th></tr></thead>
-        <tbody>
-          {rows.map(([k, v, ids]) => (
-            <tr key={k} onMouseEnter={() => onHighlight(ids)} onMouseLeave={() => onHighlight([])}
-              onFocus={() => onHighlight(ids)} tabIndex={0}>
-              <td>{PARAM_LABEL[k]}</td>
-              <td className={v.startsWith("0x") ? "code" : undefined}>{v}</td>
-              <td>{ids.map((id) => (
-                <button key={id} className="link" onClick={() => document.getElementById(`clause-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" })}>
-                  {draft.clauses.find((c) => c.id === id)?.heading ?? id}
-                </button>
-              ))}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="overflow-x-auto rounded-lg border border-mist-200">
+        <table className="w-full min-w-[520px] border-collapse text-[0.84rem]">
+          <thead className="bg-mist-50 text-left text-[0.72rem] font-semibold text-mist-500">
+            <tr><th scope="col" className="px-3 py-2">Setting</th><th scope="col" className="px-3 py-2">Value</th><th scope="col" className="px-3 py-2">Clause</th></tr>
+          </thead>
+          <tbody>
+            {rows.map(([k, v, ids]) => (
+              <tr key={k} tabIndex={0} onMouseEnter={() => onHighlight(ids)} onMouseLeave={() => onHighlight([])} onFocus={() => onHighlight(ids)} onBlur={() => onHighlight([])}
+                className="border-t border-mist-200 transition-colors hover:bg-saffron-500/8 focus:bg-saffron-500/8 focus:outline-none">
+                <td className="px-3 py-2 align-top font-medium text-ink-900 whitespace-nowrap">{PARAM_LABEL[k]}</td>
+                <td className="px-3 py-2 align-top text-ink-800">{v.startsWith("0x") ? <Mono title={v}>{v.length > 24 ? shortHash(v, 8) : v}</Mono> : v}</td>
+                <td className="px-3 py-2 align-top">
+                  <span className="flex flex-wrap gap-1">
+                    {ids.map((id) => (
+                      <button key={id} type="button" className="rounded-full border border-ink-300/60 px-2 py-0.5 text-[0.72rem] font-medium text-ink-700 hover:bg-ink-500/8"
+                        onClick={() => document.getElementById(`clause-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" })}>
+                        {draft.clauses.find((c) => c.id === id)?.heading ?? id}
+                      </button>
+                    ))}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      <h3>{CHAINS[chainId].label}</h3>
-      {local ? (
-        <p className="lede">Uses the local chain's built-in test accounts, so no wallet is needed. Money here is a demo token with no value.
-          {!usingDevWallets && <> <button className="link" onClick={() => onUseWallets(devWallets)}>Use the test accounts for client, provider and arbiter</button>.</>}
-        </p>
-      ) : (
-        <p className="lede">Connect a browser wallet on Sepolia. Each step must be signed by the account the contract names for it.
-          <> <button className="link" onClick={() => run("Connecting", async () => setWallet(await walletSigner(chainId)))}>
-            {wallet ? `Connected ${shortHash(wallet.address, 4)}` : "Connect wallet"}</button></></p>
-      )}
+      <div>
+        <SectionTitle aside={<Badge tone="dark">{CHAINS[chainId].label}</Badge>}>Network</SectionTitle>
+        {local ? (
+          <p className="text-[0.88rem] leading-relaxed text-mist-700">
+            The local chain's built-in test accounts stand in for the three parties, so no wallet is needed. Money here is a demo token with no value.
+            {!usingDevWallets && <> <Button variant="link" onClick={() => onUseWallets(devWallets)}>Use the test accounts for client, provider and arbiter</Button>.</>}
+          </p>
+        ) : (
+          <div className="flex flex-wrap items-center gap-3 text-[0.88rem] leading-relaxed text-mist-700">
+            <span>Connect a browser wallet on Sepolia. Each step must be signed by the account the contract names for it.</span>
+            <Button size="sm" variant="ghost" icon={<Wallet className="size-4" />} disabled={!can}
+              onClick={() => run("Connecting", async () => setWallet(await walletSigner(chainId)))}>
+              {wallet ? `Connected ${shortHash(wallet.address, 4)}` : "Connect wallet"}
+            </Button>
+          </div>
+        )}
+      </div>
 
-      {err && <p className="notice err" role="alert">{err}</p>}
-      {busy && <p className="notice info" aria-live="polite">{busy}…</p>}
+      {err && <Notice tone="err" role="alert">{err}</Notice>}
+      {busy && <Notice tone="info" role="status"><span className="inline-flex items-center gap-2"><Loader2 className="size-4 animate-spin" />{busy}…</span></Notice>}
 
       {!deployment ? (
-        <div className="row">
-          <button className="btn" disabled={!!busy} onClick={deploy}>Deploy escrow</button>
-          <span className="spacer" />
-          <label className="field" style={{ minWidth: "16rem" }}>
-            <span>Or check an escrow that is already deployed</span>
-            <span className="row">
-              <input value={lookup} placeholder="0x… escrow address" onChange={(e) => setLookup(e.target.value.trim())}
-                style={{ flex: 1, fontFamily: "var(--mono)", fontSize: "0.8rem", padding: "0.45rem", border: "1px solid var(--rule)", borderRadius: 3 }} />
-              <button className="btn small quiet" disabled={!/^0x[0-9a-fA-F]{40}$/.test(lookup) || !!busy}
-                onClick={() => onDeployed({ chain: chainId, address: lookup as Address })}>Check</button>
-            </span>
-          </label>
+        <div className="grid gap-4 rounded-lg border border-mist-200 bg-mist-50/60 p-4 sm:grid-cols-[auto_1fr] sm:items-end">
+          <Button size="lg" disabled={!can} onClick={deploy} icon={<Rocket className="size-4.5" />}>Deploy escrow</Button>
+          <div className="min-w-0">
+            <label htmlFor="escrow-lookup" className="mb-1 block text-[0.78rem] font-semibold text-mist-700">Or check an escrow that is already deployed</label>
+            <div className="flex gap-2">
+              <input id="escrow-lookup" value={lookup} placeholder="0x… escrow address" onChange={(e) => setLookup(e.target.value.trim())} className="control font-mono text-[0.8rem]" />
+              <Button variant="ghost" disabled={!/^0x[0-9a-fA-F]{40}$/.test(lookup) || !can} icon={<Search className="size-4" />}
+                onClick={() => onDeployed({ chain: chainId, address: lookup as Address })}>Check</Button>
+            </div>
+          </div>
         </div>
       ) : (
         <>
-          <dl className="kv">
-            <dt>Escrow address</dt>
-            <dd>{CHAINS[deployment.chain].explorer
-              ? <a href={`${CHAINS[deployment.chain].explorer}/address/${deployment.address}`} target="_blank" rel="noopener noreferrer">{deployment.address}</a>
-              : deployment.address}</dd>
-          </dl>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.84rem]">
+            <span className="font-semibold text-ink-900">Escrow address</span>
+            {explorer
+              ? <a className="inline-flex items-center gap-1 font-mono text-[0.8rem] text-ink-700 underline underline-offset-4" href={`${explorer}/address/${deployment.address}`} target="_blank" rel="noopener noreferrer">{deployment.address}<ExternalLink className="size-3.5" /></a>
+              : <Mono>{deployment.address}</Mono>}
+          </div>
 
           {verification && (
-            <div className={`notice ${verification.ok ? "ok" : "err"}`} role="status">
+            <Notice tone={verification.ok ? "ok" : "err"} role="status">
               {verification.ok
-                ? `Verified: the deployed escrow, the contract text and your terms agree on all ${verification.total} checks.`
-                : `Mismatch: ${verification.failed.length} of ${verification.total} checks failed. Do not fund this escrow.`}
+                ? <><strong>Verified.</strong> The deployed escrow, the contract text and your terms agree on all {verification.total} checks.</>
+                : <><strong>Mismatch.</strong> {verification.failed.length} of {verification.total} checks failed. Do not fund this escrow.</>}
               {!verification.ok && (
-                <ul className="checks">{verification.failed.slice(0, 8).map((f) => (
-                  <li key={f.id} data-ok="false">{f.where}: expected {f.expected}, found {f.actual}</li>
-                ))}</ul>
+                <ul className="mt-2 space-y-1">
+                  {verification.failed.slice(0, 8).map((f) => (
+                    <li key={f.id} className="flex gap-2"><X className="mt-0.5 size-4 shrink-0" /><span>{f.where}: expected <Mono>{f.expected}</Mono>, found <Mono>{f.actual}</Mono></span></li>
+                  ))}
+                </ul>
               )}
-            </div>
+            </Notice>
           )}
 
           {state && verification?.ok && (
-            <>
-              <h3>Run the contract</h3>
-              {local && (
-                <div className="row" role="radiogroup" aria-label="Act as">
+            <div>
+              <SectionTitle aside={local && (
+                <div className="flex gap-1 rounded-lg bg-mist-200/70 p-1" role="radiogroup" aria-label="Act as">
                   {(["payer", "payee", "arbiter"] as Role[]).map((r) => (
-                    <button key={r} role="radio" aria-checked={role === r} className={`btn small ${role === r ? "" : "quiet"}`} onClick={() => setRole(r)}>
-                      Act as {r === "payer" ? "client" : r === "payee" ? "provider" : "arbiter"}
+                    <button key={r} type="button" role="radio" aria-checked={role === r} onClick={() => setRole(r)}
+                      className={clsx("rounded-md px-2.5 py-1 text-[0.78rem] font-semibold capitalize transition-colors", role === r ? "bg-white text-ink-900 shadow-sm" : "text-mist-700 hover:text-ink-900")}>
+                      {ROLE_LABEL[r]}
                     </button>
                   ))}
                 </div>
-              )}
-              <div className="mstate">
-                <div>
-                  <span>
-                    <span className="label">Provider confirmed the fingerprint</span><br />{state.payeeAcknowledged ? "Yes" : "Not yet"}
-                  </span>
-                  {!state.payeeAcknowledged && (local ? role === "payee" : true) &&
-                    <button className="btn small" disabled={!!busy} onClick={() => act("Confirming", "payee", "acknowledge", [draft.document_hash])}>Confirm as provider</button>}
-                </div>
-                <div>
-                  <span><span className="label">Fee deposited</span><br />{state.funded ? `${inr(Number(state.totalAmount))} deposited` : "Not yet"}</span>
-                  {!state.funded && state.payeeAcknowledged && (local ? role === "payer" : true) &&
-                    <button className="btn small" disabled={!!busy} onClick={fund}>Deposit as client</button>}
-                </div>
+              )}>Run the contract</SectionTitle>
+
+              <ol className="mt-2">
+                <Stage done={state.payeeAcknowledged} active={!state.payeeAcknowledged} label="Provider confirms the fingerprint"
+                  status={state.payeeAcknowledged ? "Confirmed on chain" : "Waiting for the provider"}
+                  actions={!state.payeeAcknowledged && may("payee") && (
+                    <Button size="sm" disabled={!can} onClick={() => act("Confirming the fingerprint", "payee", "acknowledge", [draft.document_hash])}>Confirm as provider</Button>
+                  )} />
+                <Stage done={state.funded} active={state.payeeAcknowledged && !state.funded} label="Client deposits the fee"
+                  status={state.funded ? `${inr(Number(state.totalAmount))} held in escrow` : "Not yet deposited"}
+                  actions={!state.funded && state.payeeAcknowledged && may("payer") && (
+                    <Button size="sm" disabled={!can} onClick={fund}>Deposit as client</Button>
+                  )} />
                 {state.milestones.map((m, i) => {
                   const ends = m.deliveredAt + Number(state.acceptanceWindow);
                   const left = Math.max(0, ends - now);
+                  const daysLeft = Math.ceil(left / 86400);
+                  const status = m.state === 1
+                    ? left > 0 ? <span className="inline-flex items-center gap-1"><Clock className="size-3.5" />{daysLeft} {daysLeft === 1 ? "day" : "days"} left to object</span> : "Objection window over"
+                    : m.state === 3
+                      ? m.payeeBps === 10000 ? "Paid to provider" : m.payeeBps === 0 ? "Returned to client" : `Split ${m.payeeBps / 100}% to provider`
+                      : MILESTONE_STATE[m.state];
                   return (
-                    <div key={i}>
-                      <span>
-                        <span className="label">Milestone {i + 1}: {inr(Number(m.amount))}</span><br />
-                        {MILESTONE_STATE[m.state]}
-                        {m.state === 1 && (left > 0 ? `, ${Math.ceil(left / 86400)} days left to object` : ", objection window over")}
-                        {m.state === 3 && (m.payeeBps === 10000 ? ", paid to provider" : m.payeeBps === 0 ? ", returned to client" : `, split ${m.payeeBps / 100}% to provider`)}
-                      </span>
-                      <span className="row">
-                        {state.funded && m.state === 0 && (local ? role === "payee" : true) &&
-                          <button className="btn small" disabled={!!busy} onClick={() => act("Recording delivery", "payee", "submitDelivery", [BigInt(i)])}>Mark delivered</button>}
-                        {m.state === 1 && left > 0 && (local ? role === "payer" : true) && <>
-                          <button className="btn small" disabled={!!busy} onClick={() => act("Accepting", "payer", "accept", [BigInt(i)])}>Accept</button>
-                          <button className="btn small quiet" disabled={!!busy} onClick={() => act("Raising objection", "payer", "dispute", [BigInt(i)])}>Object</button>
+                    <Stage key={i} done={m.state === 3} active={state.funded && m.state !== 3} label={<>Milestone {i + 1} · {inr(Number(m.amount))}</>} status={status}
+                      actions={<>
+                        {state.funded && m.state === 0 && may("payee") &&
+                          <Button size="sm" disabled={!can} onClick={() => act("Recording delivery", "payee", "submitDelivery", [BigInt(i)])}>Mark delivered</Button>}
+                        {m.state === 1 && left > 0 && may("payer") && <>
+                          <Button size="sm" disabled={!can} onClick={() => act("Accepting", "payer", "accept", [BigInt(i)])}>Accept</Button>
+                          <Button size="sm" variant="ghost" disabled={!can} onClick={() => act("Raising an objection", "payer", "dispute", [BigInt(i)])}>Object</Button>
                         </>}
                         {m.state === 1 && left === 0 &&
-                          <button className="btn small" disabled={!!busy} onClick={() => act("Releasing", local ? role : "payee", "claimDeemedAcceptance", [BigInt(i)])}>Release as deemed accepted</button>}
-                        {m.state === 2 && (local ? role === "arbiter" : true) && <>
-                          <button className="btn small" disabled={!!busy} onClick={() => act("Resolving", "arbiter", "resolve", [BigInt(i), 10000])}>Award to provider</button>
-                          <button className="btn small quiet" disabled={!!busy} onClick={() => act("Resolving", "arbiter", "resolve", [BigInt(i), 5000])}>Split 50:50</button>
+                          <Button size="sm" disabled={!can} onClick={() => act("Releasing the payment", local ? role : "payee", "claimDeemedAcceptance", [BigInt(i)])}>Release as deemed accepted</Button>}
+                        {m.state === 2 && may("arbiter") && <>
+                          <Button size="sm" disabled={!can} onClick={() => act("Resolving", "arbiter", "resolve", [BigInt(i), 10000])}>Award to provider</Button>
+                          <Button size="sm" variant="ghost" disabled={!can} onClick={() => act("Resolving", "arbiter", "resolve", [BigInt(i), 5000])}>Split 50:50</Button>
                         </>}
                         {m.state === 1 && left > 0 && local &&
-                          <button className="btn small quiet" disabled={!!busy} title="Local chain only"
+                          <Button size="sm" variant="ghost" disabled={!can} title="Local chain only" icon={<Clock className="size-4" />}
                             onClick={() => run("Moving the clock", async () => { await advanceLocalTime(left + 1); await refresh(deployment.address); })}>
-                            Skip {Math.ceil(left / 86400)} days of silence
-                          </button>}
-                      </span>
-                    </div>
+                            Skip {daysLeft} {daysLeft === 1 ? "day" : "days"} of silence
+                          </Button>}
+                      </>} />
                   );
                 })}
-                {(["payee", "payer"] as Role[]).map((r) => Number(state.credits[r]) > 0 && (local ? role === r : true) && (
-                  <div key={r}>
-                    <span><span className="label">Ready to withdraw by {r === "payee" ? "provider" : "client"}</span><br />{inr(Number(state.credits[r]))}</span>
-                    <button className="btn small" disabled={!!busy} onClick={() => act("Withdrawing", r, "withdraw")}>Withdraw</button>
-                  </div>
+                {(["payee", "payer"] as Role[]).map((r) => Number(state.credits[r]) > 0 && (
+                  <Stage key={r} done={false} active label={`${r === "payee" ? "Provider" : "Client"} withdraws`} status={`${inr(Number(state.credits[r]))} ready`}
+                    actions={may(r) && <Button size="sm" disabled={!can} onClick={() => act("Withdrawing", r, "withdraw")}>Withdraw as {ROLE_LABEL[r]}</Button>} />
                 ))}
-              </div>
-            </>
+              </ol>
+            </div>
           )}
-          <div className="row">
-            <button className="btn small quiet" disabled={!!busy} onClick={() => run("Reading the escrow", () => refresh(deployment.address))}>Re-read from chain</button>
-            <button className="btn small quiet" disabled={!!busy} onClick={() => { onDeployed(null); onVerified(null); }}>Forget this escrow</button>
+
+          <div className="flex flex-wrap gap-2 border-t border-mist-200 pt-4">
+            <Button size="sm" variant="ghost" disabled={!can} icon={<RefreshCw className="size-4" />} onClick={() => run("Reading the escrow", () => refresh(deployment.address))}>Re-read from chain</Button>
+            <Button size="sm" variant="ghost" disabled={!can} onClick={() => { onDeployed(null); onVerified(null); }}>Forget this escrow</Button>
           </div>
         </>
       )}

@@ -13,8 +13,8 @@ from starlette.responses import JSONResponse, Response
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 CSP = (
-    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-    "font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; "
+    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
+    "font-src 'self'; img-src 'self' data:; "
     "connect-src 'self' https://*.infura.io https://*.alchemy.com https://rpc.sepolia.org "
     "https://ethereum-sepolia-rpc.publicnode.com http://127.0.0.1:8545 http://localhost:8545; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; "
     "object-src 'none'"

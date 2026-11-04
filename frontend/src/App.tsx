@@ -1,57 +1,70 @@
-import { useEffect, useState } from "react";
+import * as RTooltip from "@radix-ui/react-tooltip";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { ErrorBoundary } from "./app/ErrorBoundary";
+import { ROUTES, useRoute } from "./app/routes";
+import { Shell } from "./app/Shell";
 import { api } from "./api";
+import { Button } from "./components/ui/Button";
+import { Notice } from "./components/ui/Primitives";
 import type { Meta } from "./types";
-import { Draft } from "./views/Draft";
-import { Evidence } from "./views/Evidence";
-import { Recover } from "./views/Recover";
-import { Review } from "./views/Review";
+import { Home } from "./views/Home";
 
-const VIEWS = [
-  ["draft", "Draft a contract"],
-  ["review", "Review a contract"],
-  ["recover", "Recover a late payment"],
-  ["evidence", "Prove a document"],
-] as const;
-type View = (typeof VIEWS)[number][0];
+const Draft = lazy(() => import("./views/Draft").then((m) => ({ default: m.Draft })));
+const Review = lazy(() => import("./views/Review").then((m) => ({ default: m.Review })));
+const Recover = lazy(() => import("./views/Recover").then((m) => ({ default: m.Recover })));
+const Evidence = lazy(() => import("./views/Evidence").then((m) => ({ default: m.Evidence })));
 
-function fromHash(): View {
-  const h = location.hash.slice(1);
-  return (VIEWS.find(([v]) => v === h)?.[0] ?? "draft") as View;
+function Loading() {
+  return (
+    <div className="p-8" role="status" aria-live="polite">
+      <div className="h-6 w-56 animate-pulse rounded bg-mist-200" />
+      <div className="mt-4 h-40 animate-pulse rounded-xl bg-mist-200" />
+      <span className="sr-only">Loading</span>
+    </div>
+  );
 }
 
 export function App() {
+  const route = useRoute();
   const [meta, setMeta] = useState<Meta | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  const [view, setView] = useState<View>(fromHash);
+  const [tries, setTries] = useState(0);
 
   useEffect(() => {
+    setErr(null);
     api.meta().then(setMeta).catch((e) => setErr(e.message));
-    const on = () => setView(fromHash());
-    window.addEventListener("hashchange", on);
-    return () => window.removeEventListener("hashchange", on);
-  }, []);
+  }, [tries]);
+
+  useEffect(() => {
+    document.title = route === "home" ? "Clausewright" : `${ROUTES.find((r) => r.id === route)!.label} · Clausewright`;
+  }, [route]);
+
+  const page = () => {
+    if (route === "home") return <Home meta={meta} />;
+    if (err) return (
+      <div className="p-8">
+        <Notice tone="err" role="alert">
+          <strong>Cannot reach the Clausewright server.</strong> {err}
+          <div className="mt-3"><Button size="sm" variant="ghost" onClick={() => setTries((t) => t + 1)}>Retry</Button></div>
+        </Notice>
+      </div>
+    );
+    if (!meta) return <Loading />;
+    return (
+      <Suspense fallback={<Loading />}>
+        {route === "draft" && <Draft meta={meta} />}
+        {route === "review" && <Review llm={meta.llm_enabled} />}
+        {route === "recover" && <Recover meta={meta} />}
+        {route === "evidence" && <Evidence />}
+      </Suspense>
+    );
+  };
 
   return (
-    <>
-      <header className="masthead">
-        <h1 className="wordmark">Clausewright<small>Contracts that check themselves against Indian law and pay on time</small></h1>
-        <nav className="nav" aria-label="Main">
-          {VIEWS.map(([v, label]) => (
-            <button key={v} aria-current={view === v ? "page" : undefined} onClick={() => { location.hash = v; setView(v); }}>{label}</button>
-          ))}
-        </nav>
-      </header>
-      <main>
-        {err && <p className="notice err" role="alert">Cannot reach the Clausewright server: {err}</p>}
-        {meta && view === "draft" && <Draft meta={meta} />}
-        {meta && view === "review" && <Review llm={meta.llm_enabled} />}
-        {meta && view === "recover" && <Recover meta={meta} />}
-        {meta && view === "evidence" && <Evidence />}
-      </main>
-      <footer className="foot">
-        Clausewright drafts from fixed, tested rules and cites only authorities checked as of {meta?.kb_as_of ?? "…"}. It is not a law firm and
-        this is not legal advice; have an advocate review important agreements. Escrows run on test networks with a demo token that has no value.
-      </footer>
-    </>
+    <RTooltip.Provider>
+      <Shell route={route} meta={meta}>
+        <ErrorBoundary key={route} label={ROUTES.find((r) => r.id === route)?.label}>{page()}</ErrorBoundary>
+      </Shell>
+    </RTooltip.Provider>
   );
 }

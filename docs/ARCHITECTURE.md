@@ -42,7 +42,7 @@ flowchart LR
 | `app/export/` | Word export (hash in footer, AI-assistance notice in header) and clause-aware redline |
 | `app/drafting/notices.py` | MSME demand notice; BSA s.63 certificate, Part A |
 | `contracts/ClausewrightEscrow.sol` | Milestone escrow (see [ESCROW.md](ESCROW.md)) |
-| `frontend/` | React 19 + Vite 8; viem for chain access, loaded only on the escrow step |
+| `frontend/` | React 19 + Vite 8 + Tailwind CSS 4; Radix primitives for accessible overlays, Motion for the seal and hero, self-hosted variable fonts (no third-party requests); viem for chain access, loaded only on the escrow step |
 
 ## Request flow (drafting)
 

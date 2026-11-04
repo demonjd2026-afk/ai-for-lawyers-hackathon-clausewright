@@ -14,6 +14,7 @@
 | Large or abusive requests | Streaming body cap (256 kB), length limits on every field, 20 milestones max, per-IP rate limits (stricter on AI routes) | `test_body_limit`, `test_ai_rate_limit` |
 | Information leakage | Validation errors never echo input; unhandled errors return an opaque reference; no stack traces | `test_validation_does_not_echo_input` |
 | XSS / clickjacking | React text rendering only (no `dangerouslySetInnerHTML`); CSP `default-src 'self'`, `frame-ancestors 'none'`, `object-src 'none'`; `nosniff`; `no-referrer` | `test_draft_ok_and_headers` |
+| Third-party requests from the page | Fonts are bundled with the app (`@fontsource-variable`), so `font-src` and `style-src` stay at `'self'`; the only outbound connections are the configured chain RPCs | — |
 | Path traversal in static serving | Resolved path must be inside the static directory; artifact names are an allow-list | `test_artifact_name_is_allowlisted` |
 | Secrets | API key held as `SecretStr`, read from the environment, never logged or returned | — |
 | Dev keys on a public chain | Hardhat test keys are used only when the chain is `local`; Sepolia requires the user's own wallet | — |
@@ -30,7 +31,7 @@
 
 ## Pinned versions
 
-Python 3.13; FastAPI 0.162.0, Pydantic 2.14.2, anthropic 2.4.0, uvicorn 0.54.0, python-docx 1.2.0. Solidity 0.8.38, OpenZeppelin 5.6.1, Hardhat 3.21.2, forge-std 1.17.0. React 19.3.1, Vite 8.3.5, TypeScript 7.0.2, viem 2.57.14.
+Python 3.13; FastAPI 0.162.0, Pydantic 2.14.2, anthropic 2.4.0, uvicorn 0.54.0, python-docx 1.2.0. Solidity 0.8.38, OpenZeppelin 5.6.1, Hardhat 3.21.2, forge-std 1.17.0. React 19.3.1, Vite 8.3.5, TypeScript 7.0.2, Tailwind CSS 4.3.4, Radix UI (dialog 1.3.1, select 2.4.1, tabs 1.2.1, tooltip 1.4.1), Motion 14.9.0, lucide-react 1.67.0, viem 2.57.14.
 
 ## Not in scope for the hackathon build
 

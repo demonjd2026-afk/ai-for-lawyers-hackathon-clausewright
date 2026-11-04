@@ -21,7 +21,7 @@ export function Body({ body }: { body: string }) {
       }
       const [head, ...rest] = rows;
       blocks.push(
-        <div key={`t${i}`} style={{ overflowX: "auto" }}>
+        <div key={`t${i}`} className="overflow-x-auto">
           <table className="doc-table">
             <thead><tr>{head.map((h, j) => <th key={j}>{inline(h)}</th>)}</tr></thead>
             <tbody>{rest.map((r, k) => (
@@ -40,14 +40,14 @@ export function Body({ body }: { body: string }) {
   return <>{blocks}</>;
 }
 
-
+/** A whole markdown document (notice, certificate) on paper. */
 export function Markdown({ text }: { text: string }) {
   const parts = text.split(/^(#{1,2} .+)$/m);
   return (
-    <div className="paper" style={{ paddingTop: "2rem" }}>
+    <div className="paper px-6 py-7 sm:px-8">
       {parts.map((p, i) => {
-        if (p.startsWith("# ")) return <h1 key={i} style={{ fontSize: "var(--t-lg)" }}>{p.slice(2)}</h1>;
-        if (p.startsWith("## ")) return <h3 key={i} style={{ font: "600 var(--t-md)/1.3 var(--serif)", margin: "1.2rem 0 0.4rem" }}>{p.slice(3)}</h3>;
+        if (p.startsWith("# ")) return <h1 key={i}>{p.slice(2)}</h1>;
+        if (p.startsWith("## ")) return <h3 key={i} className="mt-5 mb-1 font-serif text-[1.05rem] font-semibold">{p.slice(3)}</h3>;
         return p.trim() ? <div key={i} className="clause"><Body body={p.trim()} /></div> : null;
       })}
     </div>
