@@ -110,7 +110,7 @@ def test_certificate(client):
 
 
 def test_intake_without_key_is_503(client, monkeypatch):
-    monkeypatch.setattr(main.settings, "anthropic_api_key", None)
+    monkeypatch.setattr(main.settings, "model_api_key", None)
     assert post(client, "/api/intake", {"messages": ["hello"]}).status_code == 503
 
 

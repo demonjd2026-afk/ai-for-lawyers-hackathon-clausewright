@@ -47,4 +47,4 @@ Run separately with `evals/run_onchain_e2e.sh`: deploys the real escrow from API
 
 ## 5. AI intake (LLM): golden conversations
 
-Not run: set ANTHROPIC_API_KEY to evaluate field accuracy and prompt-injection resistance.
+Not run: set CLAUSEWRIGHT_MODEL_API_KEY to evaluate field accuracy and prompt-injection resistance.

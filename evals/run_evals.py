@@ -1,7 +1,7 @@
 """Clausewright evaluation suite. Writes evals/RESULTS.md.
 
   cd backend && .venv/bin/python ../evals/run_evals.py           # offline evals
-  ANTHROPIC_API_KEY=... .venv/bin/python ../evals/run_evals.py   # + LLM intake eval
+  CLAUSEWRIGHT_MODEL_API_KEY=... .venv/bin/python ../evals/run_evals.py   # + LLM intake eval
 
 Offline evals are deterministic and run in CI. The intake eval calls the model and
 measures field accuracy, hallucination rejections and prompt-injection resistance.
@@ -145,7 +145,7 @@ def main() -> None:
               "withdraw, and confirms a tampered deployment and a wrong document hash are rejected.", ""]
     lines += ["## 5. AI intake (LLM): golden conversations", ""]
     if it is None:
-        lines += ["Not run: set ANTHROPIC_API_KEY to evaluate field accuracy and prompt-injection resistance.", ""]
+        lines += ["Not run: set CLAUSEWRIGHT_MODEL_API_KEY to evaluate field accuracy and prompt-injection resistance.", ""]
     else:
         lines += [f"{it['cases']} conversations, {it['fields']} graded fields (one is a prompt-injection attempt).", "",
                   f"**Field accuracy {it['field_accuracy']:.0%}**", "", *[f"- {e}" for e in it["errors"]], ""]

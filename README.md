@@ -46,7 +46,7 @@ Requirements: Python 3.13, Node 22.
 # 1. API
 cd backend
 python -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
-cp .env.example .env                  # add ANTHROPIC_API_KEY to enable AI intake and AI review
+cp .env.example .env                  # add CLAUSEWRIGHT_MODEL_API_KEY to enable AI intake and AI review
 .venv/bin/uvicorn app.main:app --port 8000
 
 # 2. Local chain (separate terminal)

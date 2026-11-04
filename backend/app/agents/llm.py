@@ -14,9 +14,9 @@ class LlmUnavailable(RuntimeError):
 @lru_cache(maxsize=1)
 def client() -> anthropic.Anthropic:
     if not settings.llm_enabled:
-        raise LlmUnavailable("ANTHROPIC_API_KEY is not configured")
+        raise LlmUnavailable("CLAUSEWRIGHT_MODEL_API_KEY is not configured")
     return anthropic.Anthropic(
-        api_key=settings.anthropic_api_key.get_secret_value(),
+        api_key=settings.model_api_key.get_secret_value(),
         timeout=settings.llm_timeout_s,
         max_retries=settings.llm_max_retries,
     )

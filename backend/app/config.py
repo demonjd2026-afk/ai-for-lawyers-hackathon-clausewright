@@ -13,7 +13,7 @@ _ADDR = re.compile(r"^0x[0-9a-fA-F]{40}$")
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="CW_", env_file=".env", extra="ignore")
 
-    anthropic_api_key: SecretStr | None = Field(default=None, validation_alias="ANTHROPIC_API_KEY")
+    model_api_key: SecretStr | None = Field(default=None, validation_alias="CLAUSEWRIGHT_MODEL_API_KEY")
     model: str = "claude-sonnet-5-5"  # intake: structured extraction
     review_model: str = "claude-opus-5-5"  # contract review: harder legal reasoning
     llm_timeout_s: float = 60.0
@@ -45,7 +45,7 @@ class Settings(BaseSettings):
 
     @property
     def llm_enabled(self) -> bool:
-        return self.anthropic_api_key is not None and bool(self.anthropic_api_key.get_secret_value())
+        return self.model_api_key is not None and bool(self.model_api_key.get_secret_value())
 
 
 settings = Settings()
