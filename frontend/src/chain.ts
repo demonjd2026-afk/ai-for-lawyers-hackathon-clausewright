@@ -10,6 +10,8 @@ import {
   type PublicClient,
   type WalletClient,
 } from "viem";
+import { formatAbiItem } from "viem/utils";
+import { toFunctionSelector } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { hardhat, sepolia } from "viem/chains";
 import { api } from "./api";
@@ -17,7 +19,7 @@ import { api } from "./api";
 export type ChainId = "local" | "sepolia";
 export type Role = "payer" | "payee" | "arbiter";
 
-export const CHAINS: Record<ChainId, { chain: Chain; rpc: string; label: string; explorer?: string }> = {
+export const CHAINS: Record<ChainId, { chain: Chain; rpc: string; label: string; hosted?: boolean; explorer?: string }> = {
   local: { chain: hardhat, rpc: "http://127.0.0.1:8545", label: "Local test chain" },
   sepolia: {
     chain: sepolia,
@@ -26,6 +28,13 @@ export const CHAINS: Record<ChainId, { chain: Chain; rpc: string; label: string;
     explorer: "https://sepolia.etherscan.io",
   },
 };
+
+/** Point the "local" chain at what the server reports: its own hosted demo chain (same origin,
+ *  so no wallet and no CSP exception) or a Hardhat node on this machine. */
+export function configureDemoChain(meta: { rpc: string; hosted: boolean }) {
+  const rpc = meta.rpc.startsWith("/") ? `${location.origin}${meta.rpc}` : meta.rpc;
+  CHAINS.local = { ...CHAINS.local, rpc, hosted: meta.hosted, label: meta.hosted ? "Hosted demo chain" : "Local test chain" };
+}
 
 // Hardhat's published development keys. They only hold value on a throwaway local chain,
 // which is why this signer mode is offered for `local` and never for a public network.
@@ -44,6 +53,18 @@ export function loadArtifacts() {
     token: { abi: t.abi as Abi, bytecode: t.bytecode },
   }));
   return artifacts;
+}
+
+/** Name of the custom error behind a 4-byte selector in a revert message, from the escrow and
+ *  token ABIs, so a revert can be explained even when the node reports only the selector. */
+export async function errorName(message: string): Promise<string | null> {
+  const sel = /0x[0-9a-fA-F]{8}\b/.exec(message)?.[0]?.toLowerCase();
+  if (!sel) return null;
+  const { escrow, token } = await loadArtifacts();
+  for (const item of [...escrow.abi, ...token.abi]) {
+    if (item.type === "error" && toFunctionSelector(formatAbiItem(item)) === sel) return item.name;
+  }
+  return null;
 }
 
 export function publicClient(id: ChainId): PublicClient {

@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import type { Address } from "viem";
 import { api } from "../api";
 import {
-  advanceLocalTime, chainTime, CHAINS, deployEscrow, devAccount, devSigner, ensureLocalToken, loadArtifacts,
+  advanceLocalTime, chainTime, CHAINS, deployEscrow, devAccount, devSigner, ensureLocalToken, errorName, loadArtifacts,
   MILESTONE_STATE, publicClient, readEscrow, send, walletSigner, type ChainId, type OnchainState, type Role, type Signer,
 } from "../chain";
 import { Button } from "../components/ui/Button";
@@ -20,7 +20,7 @@ const PARAM_LABEL: Record<string, string> = {
 
 // Plain-language versions of the escrow contract's custom errors.
 const REVERTS: Record<string, string> = {
-  BadDate: "A date in these terms is already in the past on this chain. Move the dates forward (on the local chain, restart it after skipping time).",
+  BadDate: "A date in these terms is already in the past on this chain's clock. On a hosted demo chain this happens after someone skipped days; it resets itself within a few minutes of going idle, or set the effective date later.",
   BadWindow: "The acceptance window is outside what the contract allows (at most 15 days for a micro or small supplier).",
   PartiesNotDistinct: "Client, provider and arbiter must be three different wallets.",
   NotAContract: "The settlement token is not deployed on this chain.",
@@ -39,10 +39,10 @@ const REVERTS: Record<string, string> = {
   ERC20InsufficientBalance: "Not enough demo tokens in the client's wallet.",
 };
 
-function explain(e: any): string {
+async function explain(e: any): Promise<string> {
   const raw = `${e?.shortMessage ?? ""} ${e?.message ?? ""} ${e?.cause?.data?.errorName ?? ""}`;
-  const hit = Object.keys(REVERTS).find((k) => raw.includes(k));
-  return hit ? REVERTS[hit] : e?.shortMessage ?? e?.message ?? String(e);
+  const named = Object.keys(REVERTS).find((k) => raw.includes(k)) ?? (await errorName(raw).catch(() => null));
+  return named && REVERTS[named] ? REVERTS[named] : e?.shortMessage ?? e?.message ?? String(e);
 }
 
 const ROLE_LABEL: Record<Role, string> = { payer: "client", payee: "provider", arbiter: "arbiter" };
@@ -100,8 +100,11 @@ export function Escrow({ ts, draft, deployment, onDeployed, onVerified, onHighli
     try {
       await fn();
     } catch (e: any) {
-      const msg = explain(e);
-      setErr(/fetch|ECONNREFUSED|HTTP request failed/i.test(msg) && local ? "Cannot reach the local chain. Start it with `npm run node` in contracts/." : msg);
+      const msg = await explain(e);
+      const unreachable = /fetch|ECONNREFUSED|HTTP request failed|not responding/i.test(msg) && local;
+      setErr(unreachable
+        ? CHAINS.local.hosted ? "The hosted demo chain is not responding. Try again in a moment." : "Cannot reach the local chain. Start it with `npm run node` in contracts/."
+        : msg);
     } finally {
       setBusy(null);
     }
@@ -216,7 +219,9 @@ export function Escrow({ ts, draft, deployment, onDeployed, onVerified, onHighli
         <SectionTitle aside={<Badge tone="dark">{CHAINS[chainId].label}</Badge>}>Network</SectionTitle>
         {local ? (
           <p className="text-[0.88rem] leading-relaxed text-mist-700">
-            The local chain's built-in test accounts stand in for the three parties, so no wallet is needed. Money here is a demo token with no value.
+            {CHAINS.local.hosted
+              ? "This chain runs beside the server for demonstrations and resets when the server restarts. Built-in test accounts stand in for the three parties, so no wallet is needed, and the money is a demo token with no value."
+              : "The local chain's built-in test accounts stand in for the three parties, so no wallet is needed. Money here is a demo token with no value."}
             {!usingDevWallets && <> <Button variant="link" onClick={() => onUseWallets(devWallets)}>Use the test accounts for client, provider and arbiter</Button>.</>}
           </p>
         ) : (

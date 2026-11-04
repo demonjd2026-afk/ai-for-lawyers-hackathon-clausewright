@@ -56,4 +56,4 @@ Windows are measured in days, and validators can shift timestamps by seconds, so
 
 ## Network and token
 
-Demos run on a local Hardhat chain or Sepolia with **DemoINR**, a 2-decimal test token with a rate-limited faucet. It has no value and is not a representation of the rupee or of RBI's e-rupee. A production deployment should settle in INR through a regulated escrow, or through programmable e-rupee if and when RBI opens that to such uses, and keep on-chain state and hash anchoring.
+Demos run on a Hardhat chain (the hosted app runs one beside the API, reached through `/rpc`; locally, `npm run node` in `contracts/`) or on Sepolia, with **DemoINR**, a 2-decimal test token with a rate-limited faucet. It has no value and is not a representation of the rupee or of RBI's e-rupee. A production deployment should settle in INR through a regulated escrow, or through programmable e-rupee if and when RBI opens that to such uses, and keep on-chain state and hash anchoring.

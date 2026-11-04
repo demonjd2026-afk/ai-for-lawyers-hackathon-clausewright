@@ -18,6 +18,7 @@
 | Path traversal in static serving | Resolved path must be inside the static directory; artifact names are an allow-list | `test_artifact_name_is_allowlisted` |
 | Secrets | API key held as `SecretStr`, read from the environment, never logged or returned | — |
 | Dev keys on a public chain | Hardhat test keys are used only when the chain is `local`; Sepolia requires the user's own wallet | — |
+| Hosted demo chain abuse | The chain binds to localhost inside the container; `POST /rpc` forwards only an allow-list of JSON-RPC methods (no impersonation, balance edits, snapshots or resets), caps batches at 20, has its own rate limit, and the chain holds nothing of value | `test_rpc_forwards_only_allowed_methods`, `test_rpc_is_absent_without_a_demo_chain` |
 
 ## Scans (3 Nov 2026)
 

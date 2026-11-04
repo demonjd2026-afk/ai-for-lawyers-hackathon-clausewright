@@ -159,7 +159,8 @@ export function Draft({ meta }: { meta: Meta }) {
             <Intake llm={meta.llm_enabled} current={ts}
               onTermSheet={(t, next) => { setTs(t); setDeployment(null); setStep(next); }} />
           )}
-          {step === "terms" && ts && <TermsForm ts={ts} states={meta.states} findings={findings} onChange={update} />}
+          {step === "terms" && ts && <TermsForm ts={ts} states={meta.states} findings={findings} onChange={update}
+            localChainLabel={meta.demo_chain.hosted ? "Hosted demo chain" : "Local test chain"} />}
           {step === "checks" && ts && <Findings findings={findings} onFix={fixOne} onFixAll={fixAll} onJump={jump} />}
           {step === "escrow" && ts && draft?.escrow && (
             <Suspense fallback={<p className="text-[0.9rem] text-mist-700" role="status">Loading the escrow tools…</p>}>

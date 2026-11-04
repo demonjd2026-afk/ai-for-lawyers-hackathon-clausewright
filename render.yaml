@@ -10,6 +10,4 @@ services:
       - key: CW_TRUST_PROXY
         value: "true"
       - key: CW_DEFAULT_CHAIN
-        value: sepolia
-      - key: CW_DEMO_TOKEN_ADDRESS
-        sync: false
+        value: local

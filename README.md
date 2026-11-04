@@ -60,7 +60,7 @@ cd frontend && npm ci && npm run dev   # http://localhost:5173
 
 In the app, choose **Website build for a client**, apply the fixes, then **Set up escrow → Deploy escrow**. The local chain uses its built-in test accounts, so no wallet extension is needed.
 
-Production: `docker build -t clausewright .` serves the API and the built app on one port. `render.yaml` deploys it to Render. For Sepolia, deploy the demo token once with `contracts/scripts/deploy-token.mjs` and set `CW_DEMO_TOKEN_ADDRESS`.
+Production: `docker build -t clausewright .` serves the API and the built app on one port and runs a demo chain beside them, so the hosted app can show the whole escrow flow without a wallet (see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)). `render.yaml` deploys it to Render; set `CLAUSEWRIGHT_MODEL_API_KEY` there to turn on AI intake and review. For Sepolia, deploy the demo token once with `contracts/scripts/deploy-token.mjs` and set `CW_DEMO_TOKEN_ADDRESS`.
 
 ```bash
 cd backend && .venv/bin/pytest -q                     # tests

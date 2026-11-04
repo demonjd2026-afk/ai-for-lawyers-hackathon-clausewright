@@ -34,10 +34,12 @@ interface Props {
   ts: TermSheet;
   states: string[];
   findings: Finding[];
+  /** What the "local" network is on this deployment: a hosted demo chain or the user's own node. */
+  localChainLabel: string;
   onChange: (ts: TermSheet) => void;
 }
 
-export function TermsForm({ ts, states, findings, onChange }: Props) {
+export function TermsForm({ ts, states, findings, localChainLabel, onChange }: Props) {
   const [partyTab, setPartyTab] = useState<"client" | "provider">("client");
   const flags = new Map<string, "blocker" | "warning">();
   for (const f of findings) {
@@ -231,7 +233,7 @@ export function TermsForm({ ts, states, findings, onChange }: Props) {
           {ts.escrow?.enabled && (
             <div className={clsx(grid2, "mt-3")}>
               <Select label="Network" value={ts.escrow.chain ?? "local"} onChange={set("escrow.chain")}
-                options={[["local", "Local test chain"], ["sepolia", "Sepolia test network"]]} />
+                options={[["local", localChainLabel], ["sepolia", "Sepolia test network"]]} />
               <Num label="Days for client to fund" value={ts.escrow.funding_days ?? 7} min={1} max={60} onChange={set("escrow.funding_days")} suffix="days" />
               <Text mono label="Client wallet" value={ts.client.wallet} flag={flag("client.wallet")} placeholder="0x…" onChange={(v) => set("client.wallet")(v || null)} />
               <Text mono label="Service provider wallet" value={ts.provider.wallet} flag={flag("provider.wallet")} placeholder="0x…" onChange={(v) => set("provider.wallet")(v || null)} />

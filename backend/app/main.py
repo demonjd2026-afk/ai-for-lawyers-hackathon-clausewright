@@ -6,8 +6,13 @@ contract text, so a client cannot get a hash for text the engine did not write.
 
 from __future__ import annotations
 
+import asyncio
+import contextlib
 import json
 import logging
+import os
+import signal
+import time
 import uuid
 from datetime import date, datetime, UTC
 from fractions import Fraction
@@ -15,6 +20,7 @@ from pathlib import Path
 from typing import Annotated, Literal
 
 import anthropic
+import httpx
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -45,13 +51,24 @@ from app.security import BodyLimit, RateLimiter, SecurityHeaders
 
 log = logging.getLogger("clausewright")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
+logging.getLogger("httpx").setLevel(logging.WARNING)  # one line per RPC call is noise
 
 ROOT = Path(__file__).resolve().parent.parent
 STATIC = ROOT / "static"
 ARTIFACTS = ROOT / "artifacts"
 
+@contextlib.asynccontextmanager
+async def _lifespan(_: FastAPI):
+    keeper = asyncio.create_task(_demo_chain_keeper()) if settings.demo_chain_rpc and settings.demo_chain_pidfile else None
+    try:
+        yield
+    finally:
+        if keeper:
+            keeper.cancel()
+
+
 app = FastAPI(title="Clausewright", version="1.0.0", docs_url="/api/docs", redoc_url=None,
-              openapi_url="/api/openapi.json")
+              openapi_url="/api/openapi.json", lifespan=_lifespan)
 app.add_middleware(SecurityHeaders)
 app.add_middleware(
     CORSMiddleware,
@@ -64,6 +81,8 @@ app.add_middleware(BodyLimit, limit=settings.max_body_bytes)
 
 llm_limiter = RateLimiter(settings.rate_limit_per_minute, settings.trust_proxy)
 api_limiter = RateLimiter(settings.rate_limit_per_minute * 10, settings.trust_proxy)
+# The escrow flow polls the chain for receipts, so the RPC proxy gets a budget of its own.
+rpc_limiter = RateLimiter(settings.rate_limit_per_minute * 60, settings.trust_proxy)
 
 
 def _today() -> date:
@@ -73,6 +92,11 @@ def _today() -> date:
 def limit_api(request: Request) -> None:
     if (wait := api_limiter.check(request)) is not None:
         raise HTTPException(429, "too many requests", headers={"Retry-After": str(int(wait) + 1)})
+
+
+def limit_rpc(request: Request) -> None:
+    if (wait := rpc_limiter.check(request)) is not None:
+        raise HTTPException(429, "too many chain requests", headers={"Retry-After": str(int(wait) + 1)})
 
 
 def limit_llm(request: Request) -> None:
@@ -87,6 +111,7 @@ class Req(BaseModel):
 
 Api = Annotated[None, Depends(limit_api)]
 Llm = Annotated[None, Depends(limit_llm)]
+Rpc = Annotated[None, Depends(limit_rpc)]
 
 
 @app.exception_handler(RequestValidationError)
@@ -123,7 +148,73 @@ def meta(_: Api) -> dict:
         ],
         "chains": {k: {"token": v} for k, v in settings.demo_token_address.items()},
         "default_chain": settings.default_chain,
+        # Where the browser should reach the local/demo chain: the server's own proxy when it
+        # hosts one, otherwise a Hardhat node on the user's machine.
+        "demo_chain": {"rpc": "/rpc", "hosted": True} if settings.demo_chain_rpc else {"rpc": "http://127.0.0.1:8545", "hosted": False},
     }
+
+
+# ----------------------------------------------------------------------------- hosted demo chain
+
+# Only what the escrow flow needs: reads, sends of signed transactions, and the two clock
+# controls the demo uses to show deemed acceptance. Node-admin methods (impersonation, balance
+# edits, snapshots) stay unreachable.
+_RPC_METHODS = frozenset({
+    "eth_chainId", "eth_blockNumber", "eth_call", "eth_estimateGas", "eth_gasPrice", "eth_maxPriorityFeePerGas",
+    "eth_feeHistory", "eth_getBalance", "eth_getBlockByNumber", "eth_getBlockByHash", "eth_getCode",
+    "eth_getTransactionCount", "eth_getTransactionByHash", "eth_getTransactionReceipt", "eth_sendRawTransaction",
+    "eth_getLogs", "eth_getStorageAt", "eth_fillTransaction", "net_version", "web3_clientVersion", "evm_increaseTime", "evm_mine",
+})
+
+
+def _rpc_ok(msg: object) -> bool:
+    return isinstance(msg, dict) and msg.get("jsonrpc") == "2.0" and msg.get("method") in _RPC_METHODS
+
+
+async def _demo_chain_keeper(tick_s: float = 60.0, max_drift_s: float = 3600.0, idle_ticks: int = 5) -> None:
+    """Restart the demo chain once time-travel demos have left its clock far ahead of real time
+    and it has gone quiet, so the next visitor's deployment has valid dates. Never resets a chain
+    that is in use: a new block within the idle window postpones the restart."""
+    last_block, quiet = None, 0
+    while True:
+        await asyncio.sleep(tick_s)
+        try:
+            async with httpx.AsyncClient(timeout=5, trust_env=False) as client:
+                r = await client.post(settings.demo_chain_rpc, json={"jsonrpc": "2.0", "id": 1, "method": "eth_getBlockByNumber", "params": ["latest", False]})
+                block = r.json()["result"]
+            number, stamp = int(block["number"], 16), int(block["timestamp"], 16)
+            quiet = quiet + 1 if number == last_block else 0
+            last_block = number
+            drift = stamp - time.time()
+            if drift > max_drift_s and quiet >= idle_ticks:
+                pid = int(Path(settings.demo_chain_pidfile).read_text().strip())
+                os.kill(pid, signal.SIGTERM)
+                log.info("demo chain restarted: clock was %.0f s ahead after %d idle minutes", drift, quiet)
+                last_block, quiet = None, 0
+        except asyncio.CancelledError:
+            raise
+        except Exception as e:  # noqa: BLE001 - the keeper must outlive any single failure
+            log.warning("demo chain keeper: %s", e)
+
+
+@app.post("/rpc")
+async def rpc(request: Request, _: Rpc) -> Response:
+    if not settings.demo_chain_rpc:
+        raise HTTPException(404, "no hosted demo chain")
+    try:
+        body = json.loads(await request.body())
+    except ValueError:
+        raise HTTPException(400, "invalid JSON-RPC") from None
+    calls = body if isinstance(body, list) else [body]
+    if not calls or len(calls) > 20 or not all(_rpc_ok(c) for c in calls):
+        log.warning("rpc rejected: %s", [c.get("method") if isinstance(c, dict) else type(c).__name__ for c in calls][:5])
+        raise HTTPException(400, "method not allowed on the demo chain")
+    try:
+        async with httpx.AsyncClient(timeout=settings.demo_chain_timeout_s, trust_env=False) as client:
+            upstream = await client.post(settings.demo_chain_rpc, json=body)
+    except httpx.HTTPError:
+        raise HTTPException(503, "the demo chain is not responding") from None
+    return Response(upstream.content, upstream.status_code, media_type="application/json")
 
 
 @app.get("/api/kb")

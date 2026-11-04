@@ -172,6 +172,8 @@ export interface Meta {
   bank_rate: { from: string; pct: number; status: string; source: string }[];
   chains: Record<string, { token: `0x${string}` }>;
   default_chain: "sepolia" | "local";
+  /** Where the browser reaches the local/demo chain: the server's own proxy when it hosts one. */
+  demo_chain: { rpc: string; hosted: boolean };
 }
 
 export interface KbEntry {

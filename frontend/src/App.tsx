@@ -4,6 +4,7 @@ import { ErrorBoundary } from "./app/ErrorBoundary";
 import { ROUTES, useRoute } from "./app/routes";
 import { Shell } from "./app/Shell";
 import { api } from "./api";
+import { configureDemoChain } from "./chain";
 import { Button } from "./components/ui/Button";
 import { Notice } from "./components/ui/Primitives";
 import type { Meta } from "./types";
@@ -32,7 +33,7 @@ export function App() {
 
   useEffect(() => {
     setErr(null);
-    api.meta().then(setMeta).catch((e) => setErr(e.message));
+    api.meta().then((m) => { configureDemoChain(m.demo_chain); setMeta(m); }).catch((e) => setErr(e.message));
   }, [tries]);
 
   useEffect(() => {

@@ -139,3 +139,25 @@ def test_unknown_api_route_404(client):
 
 def test_artifact_name_is_allowlisted(client):
     assert client.get("/api/escrow/artifact", params={"name": "../../etc/passwd"}).status_code == 422
+
+
+# ------------------------------------------------------------------------------ hosted demo chain
+
+
+def test_rpc_is_absent_without_a_demo_chain(client, monkeypatch):
+    monkeypatch.setattr(main.settings, "demo_chain_rpc", None)
+    assert post(client, "/rpc", {"jsonrpc": "2.0", "id": 1, "method": "eth_chainId", "params": []}).status_code == 404
+
+
+def test_rpc_forwards_only_allowed_methods(client, monkeypatch):
+    # An unreachable upstream: allowed calls get as far as the forward (503), others never do.
+    monkeypatch.setattr(main.settings, "demo_chain_rpc", "http://127.0.0.1:9")
+    monkeypatch.setattr(main.settings, "demo_chain_timeout_s", 0.5)
+    rpc = lambda method: post(client, "/rpc", {"jsonrpc": "2.0", "id": 1, "method": method, "params": []})  # noqa: E731
+    assert rpc("eth_chainId").status_code == 503
+    for admin in ("hardhat_setBalance", "hardhat_impersonateAccount", "evm_snapshot", "evm_revert", "hardhat_reset", "anvil_mine"):
+        assert rpc(admin).status_code == 400, admin
+    assert client.post("/rpc", content=b"not json", headers={"content-type": "application/json"}).status_code == 400
+    assert post(client, "/rpc", {"jsonrpc": "1.0", "method": "eth_chainId"}).status_code == 400
+    batch = [{"jsonrpc": "2.0", "id": i, "method": "eth_blockNumber", "params": []} for i in range(21)]
+    assert post(client, "/rpc", batch).status_code == 400

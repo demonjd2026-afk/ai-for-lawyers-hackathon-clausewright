@@ -3,7 +3,11 @@
 **/__pycache__
 **/.pytest_cache
 **/.hypothesis
+**/.env
 backend/static
-contracts
+contracts/artifacts
+contracts/cache
 evals
+samples
+docs
 .git

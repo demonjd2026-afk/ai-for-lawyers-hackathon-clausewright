@@ -65,4 +65,8 @@ Integer paise end to end: term sheet, escrow (DemoINR has 2 decimals, so 1 unit 
 
 ## Deployment
 
-One container: FastAPI serves `/api/*` and the built React app. In-process rate limiting assumes one instance; put a shared store behind `RateLimiter` before scaling out.
+One container: FastAPI serves `/api/*` and the built React app, and `docker/start.sh` runs a Hardhat demo chain beside it on `127.0.0.1:8545`. The browser reaches that chain only through `POST /rpc`, a proxy that forwards a fixed allow-list of JSON-RPC methods (reads, signed sends, and the two clock controls the deemed-acceptance demo uses) and refuses node-admin methods. `/api/meta` tells the app whether the chain is hosted, so the escrow step works on the live site with the built-in test accounts and no wallet.
+
+"Skip days of silence" moves the chain's clock forward for everyone, so a keeper in the API restarts the chain (via the start script's loop) once its clock is more than an hour ahead of real time and no block has been mined for five minutes. State is in memory and does not survive that restart or a redeploy, which is right for a demo chain and wrong for anything else.
+
+In-process rate limiting assumes one instance; put a shared store behind `RateLimiter` before scaling out.

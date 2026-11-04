@@ -25,6 +25,15 @@ class Settings(BaseSettings):
         default_factory=lambda: {"local": "0x5FbDB2315678afecb367f032d93F642f64180aa3"}
     )
     default_chain: Literal["sepolia", "local"] = "local"
+    # A JSON-RPC endpoint for a demo chain the server runs beside itself (the Docker image starts
+    # one). When set, the API exposes it at POST /rpc so the hosted app can run the escrow flow
+    # without a wallet. Never point this at a chain that holds real value.
+    demo_chain_rpc: str | None = None
+    demo_chain_timeout_s: float = 20.0
+    # If set, the keeper restarts the demo chain (SIGTERM to this pid; the start script
+    # relaunches it) once "skip days" demos have pushed its clock more than an hour ahead of
+    # real time and it has been idle for five minutes, so later demos get valid dates again.
+    demo_chain_pidfile: str | None = None
 
     allowed_origins: list[str] = Field(default_factory=lambda: ["http://localhost:5173"])
     max_body_bytes: int = 256_000
