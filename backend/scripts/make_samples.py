@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from app.agents import reviewer  # noqa: E402
+from app.config import settings  # noqa: E402
 from app.drafting.notices import (  # noqa: E402
     CertificateRequest,
     DemandRequest,
@@ -90,18 +91,26 @@ def main() -> None:
     (OUT / "bsa-63-certificate-part-a.md").write_text(cert)
     index.append("- **Draft BSA s.63(4) certificate, Part A**: [bsa-63-certificate-part-a.md](bsa-63-certificate-part-a.md)")
 
-    # Review of a one-sided contract received from a client.
+    # Review of a one-sided contract received from a client: rules only, and rules + AI when a key is set.
     text = (ROOT.parent / "evals" / "sample_counterparty_contract.txt").read_text()
-    rv = reviewer.review(text, "the service provider", use_llm=False)
-    lines = ["# Review of a contract received from a client", "", "Rule layer only (no AI key used).", ""]
-    for i in rv["issues"]:
-        own = rv["clauses"][i["clause"]].split(".", 1)[0].strip()
-        label = f"Clause {own}" if own.isdigit() else f"Paragraph {i['clause'] + 1}"
-        cites = "; ".join(f"{c['authority']} {c['provision']}" for c in i["citations"])
-        lines += [f"## {label}: {i['risk']} risk", "", f"> {rv['clauses'][i['clause']][:300]}", "",
-                  i["issue"], "", f"**Ask for:** {i['suggested_change']}", "", f"Authorities: {cites}", ""]
-    (OUT / "review-report.md").write_text("\n".join(lines))
-    index.append("- **Review of a one-sided contract**: [review-report.md](review-report.md)")
+    for use_llm, stem, label in ((False, "review-report", "Review of a one-sided contract (rules only)"),
+                                 (True, "review-report-ai", "Review of a one-sided contract (rules and AI reviewer)")):
+        if use_llm and not settings.llm_enabled:
+            continue
+        rv = reviewer.review(text, "the service provider", use_llm=use_llm)
+        m = rv["meta"]
+        method = ("Rules and AI review. The AI reviewer may cite only authorities retrieved from the verified list for that clause; "
+                  f"{m['citations_dropped']} citation(s) it produced outside that list were dropped.") if m["llm"] else "Rule layer only (no AI key used)."
+        lines = ["# Review of a contract received from a client", "", method, ""]
+        for i in rv["issues"]:
+            own = rv["clauses"][i["clause"]].split(".", 1)[0].strip()
+            label_ = f"Clause {own}" if own.isdigit() else f"Paragraph {i['clause'] + 1}"
+            cites = "; ".join(f"{c['authority']} {c['provision']}" for c in i["citations"]) or "none"
+            found = "fixed rule" if i["source"] == "rule" else "AI reviewer"
+            lines += [f"## {label_}: {i['risk']} risk ({found})", "", f"> {rv['clauses'][i['clause']][:300]}", "",
+                      i["issue"], "", f"**Ask for:** {i['suggested_change']}", "", f"Authorities: {cites}", ""]
+        (OUT / f"{stem}.md").write_text("\n".join(lines))
+        index.append(f"- **{label}**: [{stem}.md]({stem}.md)")
 
     (OUT / "README.md").write_text("\n".join(index) + "\n")
     print("\n".join(index))

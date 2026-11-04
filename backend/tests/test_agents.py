@@ -76,10 +76,19 @@ def test_untrusted_envelope_cannot_be_closed_from_inside():
     assert wrapped.count("</user_messages>") == 1
 
 
-def test_run_uses_structured_output(monkeypatch):
-    fake = SimpleNamespace(messages=SimpleNamespace(parse=lambda **kw: SimpleNamespace(parsed_output=_x())))
-    monkeypatch.setattr(intake, "client", lambda: fake)
+def test_run_uses_structured_output_in_two_calls(monkeypatch):
+    """The parties and the deal are extracted in separate calls (the API's schema budget), each
+    with its own output_format, and merged into one term sheet."""
+    seen: list[type] = []
+
+    def parse(**kw):
+        seen.append(kw["output_format"])
+        full = _x().model_dump()
+        return SimpleNamespace(parsed_output=kw["output_format"](**{k: full[k] for k in kw["output_format"].model_fields}))
+
+    monkeypatch.setattr(intake, "client", lambda: SimpleNamespace(messages=SimpleNamespace(parse=parse)))
     out = intake.run([MSG], TODAY)
+    assert seen == [intake.PartiesX, intake.DealX]
     assert out["term_sheet"] is not None and out["questions"] == []
 
 

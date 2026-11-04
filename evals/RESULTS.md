@@ -1,12 +1,12 @@
 # Clausewright eval results
 
-Run: 2026-11-03 11:00 IST
+Run: 2026-11-04 11:46 IST
 
 ## 1. Clause-code verifier: mutation testing
 
 30 seeded inconsistencies between term sheet, contract prose, Schedule B and the deployed escrow (wrong figure, wrong words, swapped wallet, stale hash, dropped milestone, inserted non-compete).
 
-**Detected: all** (0.3 s)
+**Detected: all** (0.4 s)
 
 ## 2. Compliance gate: seeded legal defects
 
@@ -47,4 +47,7 @@ Run separately with `evals/run_onchain_e2e.sh`: deploys the real escrow from API
 
 ## 5. AI intake (LLM): golden conversations
 
-Not run: set CLAUSEWRIGHT_MODEL_API_KEY to evaluate field accuracy and prompt-injection resistance.
+4 conversations, 21 graded fields (one is a prompt-injection attempt).
+
+**Field accuracy 100%**
+

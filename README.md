@@ -34,6 +34,8 @@ Built for the HackIndia **AI for Lawyers Hackathon 2026**, problem statement **P
 | Compliance gate: 6 seeded legal defects | **6/6 blocked** before drafting |
 | Reviewer rule layer: 46 labelled clauses, near-miss negatives included | **100% precision, 96% recall** |
 | On-chain end to end: API → deploy → verify → fund → deemed acceptance → withdraw; tampered deploy | **9/9** |
+| AI intake golden set: 4 conversations, 21 graded fields, one prompt-injection attempt (live model) | **100% field accuracy**, injection ignored |
+| AI reviewer on the sample contract (live model): citations outside the verified list | **1 produced, 1 dropped** ([sample](samples/review-report-ai.md)) |
 | `pip-audit`, `npm audit` (3 packages), `bandit`, `slither` | **0 findings** (Slither timestamp notes are by design; see [docs/SECURITY.md](docs/SECURITY.md)) |
 
 The reviewer corpus was written and labelled by the authors, so the 46-clause figure is not an independent benchmark. The one recall miss comes from a sentence written after the patterns were fixed; it is kept in the corpus rather than tuned away. Full report: [evals/RESULTS.md](evals/RESULTS.md).

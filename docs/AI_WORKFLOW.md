@@ -11,7 +11,7 @@ Clausewright uses AI where language is ambiguous and fixed rules where the law i
 | Review a contract someone else wrote | Rule patterns, then LLM review per clause (`claude-opus-5-5`) restricted to retrieved authorities | Counterparty drafting is unbounded; the model reasons, the whitelist keeps citations real |
 | Prove the code matches the contract | Deterministic three-way verifier | It is a proof obligation, not a judgement call |
 
-Model names are configuration (`CW_MODEL`, `CW_REVIEW_MODEL`). Both agents use the Anthropic SDK's structured output (`messages.parse` with a Pydantic schema), so a response either validates or is rejected.
+Model names are configuration (`CW_MODEL`, `CW_REVIEW_MODEL`). Both agents use the SDK's structured output (`messages.parse` with a Pydantic schema), so a response either validates or is rejected. The structured-output grammar has a complexity budget, so the intake schema is flat (every field required, empty string for "not stated", no optional unions) and is requested in two calls, parties then deal terms, which are merged before grounding.
 
 ## 1. Intake agent (`backend/app/agents/intake.py`)
 
@@ -60,7 +60,7 @@ If the AI call fails, the API returns the rule findings and says the AI review w
 | Mutation testing | Verifier catches 30 seeded inconsistencies | `backend/tests/test_verifier_mutations.py` |
 | Compliance gate | Six seeded legal defects are blocked | `evals/run_evals.py` |
 | Reviewer corpus | Precision and recall on 46 labelled clauses with near-miss negatives | `evals/reviewer_corpus.jsonl` |
-| Intake golden set | Field accuracy and prompt-injection resistance on 4 conversations (needs an API key) | `evals/intake_golden.jsonl` |
+| Intake golden set | Field accuracy and prompt-injection resistance on 4 conversations, 21 fields: 100% with the live model | `evals/intake_golden.jsonl` |
 | Agent unit tests | Grounding, rejection, citation filtering, with a fake LLM | `backend/tests/test_agents.py` |
 | On-chain end to end | Real deployment from API output, three-way verification, full payment flow | `evals/run_onchain_e2e.sh` |
 
