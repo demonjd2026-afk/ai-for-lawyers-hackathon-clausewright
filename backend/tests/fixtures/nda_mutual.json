@@ -1,0 +1,15 @@
+{
+  "agreement_type": "nda",
+  "effective_date": "2026-11-10",
+  "client": {"name": "Kaveri Organics Private Limited", "entity_type": "company",
+             "address": "42, 2nd Cross, Indiranagar, Bengaluru 560038", "state": "Karnataka",
+             "email": "legal@kaveri.example", "signatory_name": "Anita Rao", "signatory_designation": "Director"},
+  "provider": {"name": "Meera Iyer", "entity_type": "individual", "is_adult_confirmed": true,
+               "address": "Flat 3B, Adyar, Chennai 600020", "state": "Tamil Nadu", "email": "meera@example.com"},
+  "governing_state": "Tamil Nadu",
+  "jurisdiction_city": "Chennai",
+  "nda_purpose": "Evaluating a possible partnership to supply cold-pressed oils to Kaveri's retail stores.",
+  "confidentiality_years": 3,
+  "non_solicit_months_after_term": 0,
+  "arbitration": {"enabled": true, "seat_city": "Chennai", "appointment": "mutual"}
+}

@@ -1,0 +1,26 @@
+{
+  "agreement_type": "service",
+  "effective_date": "2026-11-10",
+  "client": {"name": "Kaveri Organics Private Limited", "entity_type": "company",
+             "address": "42, 2nd Cross, Indiranagar, Bengaluru 560038", "state": "Karnataka",
+             "email": "legal@kaveri.example", "signatory_name": "Anita Rao", "signatory_designation": "Director",
+             "gstin": "29AABCK1234L1Z5", "wallet": "0x1111111111111111111111111111111111111111"},
+  "provider": {"name": "Pixelnest Studio", "entity_type": "proprietorship",
+               "address": "Door 7-12, Beach Road, Visakhapatnam 530017", "state": "Andhra Pradesh",
+               "email": "hello@pixelnest.example", "signatory_name": "Ravi Teja", "msme_category": "micro",
+               "udyam_number": "UDYAM-AP-08-0012345", "gstin": "37ABCPT1234K1Z2",
+               "wallet": "0x2222222222222222222222222222222222222222"},
+  "governing_state": "Karnataka",
+  "jurisdiction_city": "Bengaluru",
+  "scope": "Design and build a bilingual (English and Kannada) e-commerce website for organic produce, including product catalogue, checkout integration and order management for customer data.",
+  "milestones": [
+    {"title": "Design", "deliverable": "Figma designs for 12 screens", "amount_paise": 15000000, "due_date": "2026-12-01"},
+    {"title": "Build", "deliverable": "Working website on staging", "amount_paise": 35000050, "due_date": "2027-01-15"},
+    {"title": "Launch", "deliverable": "Production launch and 30-day support", "amount_paise": 10000000, "due_date": "2027-02-15"}
+  ],
+  "acceptance_days": 10,
+  "payment_days": 30,
+  "processes_personal_data": true,
+  "arbitration": {"enabled": true, "seat_city": "Bengaluru", "appointment": "mutual"},
+  "escrow": {"enabled": true, "arbiter_wallet": "0x3333333333333333333333333333333333333333", "funding_days": 7, "chain": "local"}
+}

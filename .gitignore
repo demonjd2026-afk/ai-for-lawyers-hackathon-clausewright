@@ -147,3 +147,24 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# --- Clausewright
+# python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+.env
+# node
+node_modules/
+# build output
+backend/static/
+contracts/artifacts/
+contracts/cache/
+contracts/types/
+# editors / os
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,38 @@
+name: ci
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: backend } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.13" }
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check app tests scripts ../evals --select E,F,W,B,S,UP,SIM --ignore S101,E501
+      - run: bandit -q -r app
+      - run: pip-audit -r requirements.txt
+      - run: pytest -q
+      - run: python ../evals/run_evals.py
+  contracts:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: contracts } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - run: npm ci
+      - run: npm audit
+      - run: npx hardhat test solidity
+  frontend:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: frontend } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - run: npm ci
+      - run: npm audit
+      - run: npx tsc --noEmit

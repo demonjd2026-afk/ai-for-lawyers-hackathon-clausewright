@@ -1,0 +1,46 @@
+{"text": "The Consultant shall not, for a period of two years after termination of this Agreement, engage in any business similar to that of the Company.", "expect": ["non_compete"]}
+{"text": "The Employee agrees not to join any competitor of the Company for 12 months following the end of employment.", "expect": ["non_compete"]}
+{"text": "Vendor will not compete with the Client in any manner after expiry of this Agreement within India.", "expect": ["non_compete"]}
+{"text": "During the term of this Agreement, the Consultant shall not provide similar services to a direct competitor of the Company.", "expect": []}
+{"text": "For twelve months after termination, neither party shall solicit the other's employees with whom it worked.", "expect": []}
+{"text": "Any dispute shall be referred to a sole arbitrator appointed by the Company, whose decision shall be final.", "expect": ["unilateral_arbitrator"]}
+{"text": "The arbitral tribunal shall consist of a sole arbitrator nominated solely by the Employer from its panel.", "expect": ["unilateral_arbitrator"]}
+{"text": "Disputes shall be resolved by a sole arbitrator chosen by the Client.", "expect": ["unilateral_arbitrator"]}
+{"text": "Disputes shall be resolved by a sole arbitrator appointed by mutual consent of the parties, failing which by the High Court under section 11.", "expect": []}
+{"text": "The arbitrator shall be appointed by the Mumbai Centre for International Arbitration under its rules.", "expect": []}
+{"text": "Invoices shall be paid within ninety (90) days of receipt of invoice.", "expect": ["long_payment"]}
+{"text": "The Company shall make payment within 60 days of invoice submission.", "expect": ["long_payment"]}
+{"text": "Payment shall be made in 120 days from receipt of a valid invoice.", "expect": ["long_payment"]}
+{"text": "The Client shall pay each invoice within thirty (30) days of acceptance of the deliverable.", "expect": []}
+{"text": "Payment is due within 45 days of acceptance.", "expect": []}
+{"text": "The Contractor shall be paid only after receipt of payment from the end customer for the corresponding work.", "expect": ["pay_when_paid"]}
+{"text": "Payment to the Sub-contractor is subject to receipt of payment from its client.", "expect": ["pay_when_paid"]}
+{"text": "The Client shall pay on acceptance regardless of whether the Client's own customer has paid.", "expect": []}
+{"text": "Any claim shall be barred and deemed waived unless brought within 60 days of the event giving rise to it.", "expect": ["claims_bar"]}
+{"text": "Claims shall be extinguished if not made within three months of completion.", "expect": ["claims_bar"]}
+{"text": "A party shall give written notice of any claim within 60 days; this does not limit the period to sue.", "expect": []}
+{"text": "A penalty of 2% per day of delay shall be levied on the Supplier.", "expect": ["penalty"]}
+{"text": "The security deposit shall stand forfeited and 10% shall be deducted for late delivery.", "expect": ["penalty"]}
+{"text": "Late delivery attracts liquidated damages of 0.5% of the milestone fee per week, capped at 10% of that fee, as a genuine pre-estimate of loss.", "expect": []}
+{"text": "The Vendor shall have unlimited liability for any breach of this Agreement.", "expect": ["unlimited_liability"]}
+{"text": "The Service Provider shall indemnify the Client against any and all losses arising from the services.", "expect": ["unlimited_liability"]}
+{"text": "Each party's total liability is limited to the fees paid in the twelve months before the claim.", "expect": []}
+{"text": "The Freelancer hereby assigns all copyright in the deliverables to the Client.", "expect": ["ip_no_territory"]}
+{"text": "The Freelancer assigns all intellectual property in the work to the Company upon payment.", "expect": ["ip_no_territory"]}
+{"text": "The Freelancer assigns all copyright in the deliverables to the Client throughout the world for the full term of copyright.", "expect": []}
+{"text": "The Agency will process customer data received from the Client to run marketing campaigns.", "expect": ["data_no_processor_terms"]}
+{"text": "The Vendor will store user data on its servers for analytics.", "expect": ["data_no_processor_terms"]}
+{"text": "The Processor will handle personal data only on instructions, keep security safeguards, report any breach within 24 hours, and delete data at the end.", "expect": []}
+{"text": "This Agreement is governed by the laws of India and the courts at Bengaluru have exclusive jurisdiction.", "expect": []}
+{"text": "The Consultant shall keep all confidential information secret for three years after termination.", "expect": []}
+{"text": "There is no penalty for early termination by either party on thirty days' notice.", "expect": []}
+{"text": "The Company may terminate this Agreement for convenience on 30 days notice.", "expect": []}
+{"text": "Fees are exclusive of GST, which shall be paid at the applicable rate.", "expect": []}
+{"text": "Notwithstanding anything herein, the Supplier waives all claims unless raised within 15 days, after which they shall not be entertained.", "expect": ["claims_bar"]}
+{"text": "The Licensee shall pay within 75 days of the date of invoice, and the Licensor shall not compete after termination of the licence.", "expect": ["long_payment", "non_compete"]}
+{"text": "Following cessation of employment, the Employee must not take up work with any rival or similar business for eighteen months.", "expect": ["non_compete"], "added": "after-fix holdout"}
+{"text": "The Partner agrees not to, for one year post termination, start or join any competing venture.", "expect": ["non_compete"], "added": "after-fix holdout"}
+{"text": "The Seller agrees not to compete within Pune for three years in connection with the sale of the goodwill of the business, during the term.", "expect": [], "added": "after-fix holdout"}
+{"text": "The Contractor bars any suit against the Owner unless filed within 21 days of the cause of action.", "expect": ["claims_bar"], "added": "after-fix holdout"}
+{"text": "The Author assigns the copyright in the manuscript to the Publisher for India for seven years.", "expect": [], "added": "after-fix holdout"}
+{"text": "The Developer assigns its intellectual property in the source code to the Company; the Company shall own all modifications.", "expect": ["ip_no_territory"], "added": "after-fix holdout"}

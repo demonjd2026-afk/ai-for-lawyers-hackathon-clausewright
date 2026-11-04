@@ -1,0 +1,22 @@
+{
+  "name": "clausewright-contracts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "hardhat build",
+    "test": "hardhat test solidity",
+    "export": "hardhat build && node scripts/export-artifacts.mjs",
+    "node": "hardhat node",
+    "e2e": "node scripts/e2e.mjs",
+    "deploy:token": "node scripts/deploy-token.mjs"
+  },
+  "devDependencies": {
+    "@openzeppelin/contracts": "5.6.1",
+    "forge-std": "github:foundry-rs/forge-std#v1.17.0",
+    "hardhat": "3.21.2",
+    "viem": "2.57.14"
+  },
+  "overrides": {
+    "zod": "4.6.7"
+  }
+}

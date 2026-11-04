@@ -1,0 +1,22 @@
+{
+  "agreement_type": "employment",
+  "effective_date": "2026-11-10",
+  "client": {"name": "Pixelnest Studio", "entity_type": "proprietorship",
+             "address": "Door 7-12, Beach Road, Visakhapatnam 530017", "state": "Andhra Pradesh",
+             "email": "hello@pixelnest.example", "signatory_name": "Ravi Teja"},
+  "provider": {"name": "Sravani Kota", "entity_type": "individual",
+               "address": "12-4-56, MVP Colony, Visakhapatnam 530017", "state": "Andhra Pradesh",
+               "email": "sravani@example.com"},
+  "governing_state": "Andhra Pradesh",
+  "jurisdiction_city": "Visakhapatnam",
+  "non_solicit_months_after_term": 6,
+  "arbitration": {"enabled": false},
+  "employment": {
+    "employee_date_of_birth": "2001-03-14", "employee_parent_name": "K. Ramana",
+    "designation": "UI Designer", "employment_type": "fixed_term", "fixed_term_end": "2027-11-30",
+    "skill_category": "skilled", "date_of_joining": "2026-12-01", "place_of_work": "Visakhapatnam studio",
+    "duties": "Design web and mobile interfaces for client projects and maintain the design system.",
+    "basic": 1800000, "hra": 900000, "conveyance": 200000, "other_allowances": 1100000,
+    "epf_applicable": true, "esic_applicable": false
+  }
+}

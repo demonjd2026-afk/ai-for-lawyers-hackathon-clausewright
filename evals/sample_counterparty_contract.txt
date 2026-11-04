@@ -1,0 +1,19 @@
+CONSULTANCY AGREEMENT
+
+1. Services. The Consultant shall develop a customer loyalty app for the Company as directed from time to time.
+
+2. Fees. The Company shall pay the Consultant within ninety (90) days of receipt of a valid invoice. Payment for any phase is subject to receipt of payment from its client for the corresponding phase.
+
+3. Delay. Time is of the essence. A penalty of 2% of the total fee per day of delay shall be deducted from any amount due.
+
+4. Intellectual Property. The Consultant hereby assigns all intellectual property in the work to the Company.
+
+5. Data. The Consultant will process customer data of the Company's members to send loyalty offers.
+
+6. Restriction. The Consultant shall not, for two years after termination of this Agreement, provide services to any business similar to the Company's.
+
+7. Liability. The Consultant shall indemnify the Company against any and all losses, howsoever arising.
+
+8. Claims. Any claim by the Consultant shall be barred and deemed waived unless made in writing within 15 days of the event giving rise to it.
+
+9. Disputes. Any dispute shall be referred to a sole arbitrator appointed by the Company. The venue shall be Mumbai.

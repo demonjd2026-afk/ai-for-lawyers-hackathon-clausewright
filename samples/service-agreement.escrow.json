@@ -1,0 +1,64 @@
+{
+  "constructor_args": [
+    "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "0x1111111111111111111111111111111111111111",
+    "0x2222222222222222222222222222222222222222",
+    "0x3333333333333333333333333333333333333333",
+    "0x65f868bfa94c62378635320641a3654beaf40b09364ad50efe7a9c2b58aec495",
+    "0x2fab5a2860b7e27fbc03e56e0e6f5a2f6805aed16e60b5d3f7acd32575ca4671",
+    864000,
+    1794940199,
+    true,
+    [
+      {
+        "amount": 15000000,
+        "dueDate": 1796149799
+      },
+      {
+        "amount": 35000050,
+        "dueDate": 1800037799
+      },
+      {
+        "amount": 10000000,
+        "dueDate": 1802716199
+      }
+    ]
+  ],
+  "clause_map": {
+    "acceptanceWindow": [
+      "acceptance"
+    ],
+    "milestones": [
+      "fees",
+      "schedule_a"
+    ],
+    "totalAmount": [
+      "fees",
+      "schedule_a"
+    ],
+    "documentHash": [
+      "escrow"
+    ],
+    "termsHash": [
+      "escrow"
+    ],
+    "fundingDeadline": [
+      "escrow"
+    ],
+    "arbiter": [
+      "escrow"
+    ],
+    "payer": [
+      "escrow"
+    ],
+    "payee": [
+      "escrow"
+    ],
+    "token": [
+      "escrow"
+    ],
+    "*": [
+      "schedule_b"
+    ]
+  }
+}
