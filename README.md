@@ -4,6 +4,8 @@ Contracts for Indian small businesses that check themselves against the law, and
 
 Built for the HackIndia **AI for Lawyers Hackathon 2026**, problem statement **PS-03 · Smart Contract Creation**.
 
+**Live demo: [clausewright.onrender.com](https://clausewright.onrender.com/)** — no sign-up and no wallet needed. Choose *Draft a contract → Website build for a client → Apply fixes → Set up escrow → Deploy escrow* to run the whole flow on the hosted demo chain. The free host sleeps when idle, so the first load can take up to a minute.
+
 ## The problem
 
 - Micro and small enterprises are owed **₹20,979 crore** in delayed payments still pending before MSME Samadhaan (14 Aug 2026), although the MSMED Act caps payment at 45 days and adds compound interest at three times the RBI Bank Rate.
