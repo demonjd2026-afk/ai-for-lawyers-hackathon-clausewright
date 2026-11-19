@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { navigate } from "./routes";
 import { startTour } from "./tour";
 
-export const REPO_URL = "https://github.com/HackIndiaXYZ/ai-for-lawyers-hackathon-clausewright";
+export const REPO_URL = "https://github.com/demonjd2026-afk/ai-for-lawyers-hackathon-clausewright";
 
 interface Command { id: string; label: string; hint: string; Icon: typeof Scale; run: () => void }
 
