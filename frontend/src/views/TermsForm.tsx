@@ -19,7 +19,7 @@ function Group({ title, flags, children, hint }: { title: string; flags?: number
     <fieldset className="min-w-0 rounded-lg border border-mist-200 bg-mist-50/60 p-4 sm:p-5">
       <legend className="flex items-center gap-2 px-1.5 text-[0.95rem] font-bold text-ink-900">
         {title}
-        {!!flags && <span className="rounded-full bg-saffron-500 px-1.5 text-[0.68rem] font-bold leading-4 text-ink-950" aria-label={`${flags} open checks`}>{flags}</span>}
+        {!!flags && <span className="rounded-full bg-warn-500 px-1.5 text-[0.68rem] font-bold leading-4 text-ink-950" aria-label={`${flags} open checks`}>{flags}</span>}
       </legend>
       {hint && <p className="mb-3 text-[0.8rem] leading-snug text-mist-700">{hint}</p>}
       {children}
@@ -109,7 +109,7 @@ export function TermsForm({ ts, states, findings, localChainLabel, onChange }: P
                 className={clsx("flex min-w-0 flex-1 items-center justify-center gap-2 rounded-md px-3 py-2 text-[0.84rem] font-semibold transition-colors",
                   partyTab === r ? "bg-white text-ink-900 shadow-sm" : "text-mist-700 hover:text-ink-900")}>
                 <span className="truncate">{roles[r]}: {(ts[r] as Party).name || "unnamed"}</span>
-                {!!n && <span className="size-1.5 shrink-0 rounded-full bg-saffron-500" aria-label={`${n} open checks`} />}
+                {!!n && <span className="size-1.5 shrink-0 rounded-full bg-warn-500" aria-label={`${n} open checks`} />}
               </button>
             );
           })}
@@ -284,7 +284,7 @@ function EmploymentFields({ ts, set, flag, flagsIn }: {
           <Money label="Other allowances" paise={e.other_allowances} onChange={set(at("other_allowances"))} />
           <div className="rounded-md border border-mist-200 bg-white px-3 py-2">
             <div className="text-[0.74rem] font-semibold text-mist-500">Gross a month</div>
-            <div className="font-serif text-[1.3rem] font-semibold tabular-nums text-ink-900">{inr(gross)}</div>
+            <div className="font-display text-[1.3rem] font-semibold tabular-nums text-ink-900">{inr(gross)}</div>
             <div className="text-[0.74rem] text-mist-700">Wages for the Codes: {inr(wagesCore + addBack)}{addBack ? ` (adds back ${inr(addBack)})` : ""}</div>
           </div>
         </div>

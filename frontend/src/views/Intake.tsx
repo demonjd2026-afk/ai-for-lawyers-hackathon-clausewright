@@ -81,9 +81,9 @@ export function Intake({ llm, current, onTermSheet }: {
 
       <div className="grid gap-3 sm:grid-cols-2">
         {examples().map((e) => (
-          <button key={e.id} onClick={() => onTermSheet(e.ts, e.id === "service" ? "checks" : "terms")}
-            className="group flex flex-col rounded-lg border border-mist-200 bg-white p-4 text-left transition-[border-color,box-shadow,transform] duration-150 hover:-translate-y-px hover:border-saffron-500/60 hover:shadow-glow">
-            <span className="flex items-center justify-between gap-2 font-bold text-ink-900">{e.label}<ArrowRight className="size-4 text-mist-300 group-hover:text-saffron-600" /></span>
+          <button key={e.id} data-tour={`example-${e.id}`} onClick={() => onTermSheet(e.ts, e.id === "service" ? "checks" : "terms")}
+            className="group flex flex-col rounded-lg border border-mist-200 bg-white p-4 text-left transition-[border-color,box-shadow,transform] duration-150 hover:-translate-y-px hover:border-accent-500/60 hover:shadow-glow">
+            <span className="flex items-center justify-between gap-2 font-bold text-ink-900">{e.label}<ArrowRight className="size-4 text-mist-300 group-hover:text-accent-600" /></span>
             <span className="mt-1 text-[0.84rem] leading-snug text-mist-700">{e.summary}</span>
           </button>
         ))}

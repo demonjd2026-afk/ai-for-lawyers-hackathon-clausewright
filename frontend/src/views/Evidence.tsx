@@ -70,7 +70,7 @@ export function Evidence() {
           onDragOver={(e) => { e.preventDefault(); setOver(true); }} onDragLeave={() => setOver(false)}
           onDrop={(e) => { e.preventDefault(); setOver(false); onFile(e.dataTransfer.files?.[0]); }}
           className={clsx("flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-6 py-8 text-center transition-colors",
-            over ? "border-saffron-500 bg-saffron-500/8" : "border-mist-300 bg-mist-50 hover:border-ink-300 hover:bg-mist-100")}>
+            over ? "border-accent-500 bg-accent-500/8" : "border-mist-300 bg-mist-50 hover:border-ink-300 hover:bg-mist-100")}>
           <FileUp className="size-7 text-ink-500" aria-hidden />
           <span className="font-semibold text-ink-900">{hashing ? "Computing SHA-256…" : fileName ? fileName : "Drop the document here or choose a file"}</span>
           <span className="text-[0.78rem] text-mist-500">PDF, Word or any file up to 20 MB</span>

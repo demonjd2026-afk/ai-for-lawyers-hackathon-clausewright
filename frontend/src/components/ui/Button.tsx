@@ -7,10 +7,10 @@ type Size = "sm" | "md" | "lg";
 
 const VARIANT: Record<Variant, string> = {
   primary:
-    "bg-saffron-500 text-ink-950 shadow-[0_1px_0_rgb(255_255_255/0.35)_inset,0_6px_16px_-8px_rgb(245_165_36/0.9)] hover:bg-saffron-400 active:bg-saffron-600",
+    "bg-accent-500 text-white shadow-[0_1px_0_rgb(255_255_255/0.25)_inset,0_8px_18px_-8px_rgb(106_85_232/0.9)] hover:bg-accent-400 active:bg-accent-600",
   secondary: "bg-ink-900 text-white hover:bg-ink-800 active:bg-ink-950",
   ghost: "bg-white text-ink-900 border border-mist-300 hover:border-mist-500 hover:bg-mist-50",
-  danger: "bg-vermilion-500 text-white hover:bg-vermilion-600",
+  danger: "bg-bad-500 text-white hover:bg-bad-600",
   link: "bg-transparent text-ink-600 underline underline-offset-4 decoration-ink-300 hover:decoration-ink-600 px-0 py-0 h-auto rounded-none",
 };
 const SIZE: Record<Size, string> = {

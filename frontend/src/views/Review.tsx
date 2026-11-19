@@ -21,8 +21,8 @@ const SAMPLE = `1. Services. The Vendor shall design and build the Company's mob
 7. Data. The Vendor will process customer data received from the Company to send order updates.`;
 
 const RISK = {
-  high: { label: "High risk", tone: "high" as const, bar: "bg-vermilion-500" },
-  medium: { label: "Medium risk", tone: "medium" as const, bar: "bg-saffron-500" },
+  high: { label: "High risk", tone: "high" as const, bar: "bg-bad-500" },
+  medium: { label: "Medium risk", tone: "medium" as const, bar: "bg-warn-500" },
   low: { label: "Low risk", tone: "low" as const, bar: "bg-ink-300" },
 };
 
@@ -70,7 +70,7 @@ export function Review({ llm }: { llm: boolean }) {
         </div>
         {err && <Notice tone="err" role="alert" className="mt-3">{err}</Notice>}
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button loading={busy} disabled={text.trim().length < 20} onClick={run} icon={<Gavel className="size-4" />}>Review</Button>
+          <Button loading={busy} disabled={text.trim().length < 20} onClick={run} icon={<Gavel className="size-4" />}>Review this contract</Button>
           <Button variant="ghost" onClick={() => setText(SAMPLE)} icon={<ClipboardPaste className="size-4" />}>Paste a sample</Button>
         </div>
       </Panel>

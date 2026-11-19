@@ -1,12 +1,15 @@
 import { clsx } from "clsx";
 import { Download, FileText } from "lucide-react";
 import { Body } from "../components/Markdown";
+import { ProofMatrix } from "../components/ProofMatrix";
 import { SealBar, type SealState } from "../components/Seal";
 import { Button } from "../components/ui/Button";
-import type { DraftResult } from "../types";
+import type { DraftResult, Verification } from "../types";
 
-export function DocumentView({ draft, sealState, sealDetail, highlight, stale, onDownload }: {
+export function DocumentView({ draft, chain, sealState, sealDetail, highlight, stale, onDownload }: {
   draft: DraftResult | null;
+  /** Verification that includes the deployed escrow's state, once one has been read back. */
+  chain: Verification | null;
   sealState: SealState;
   sealDetail: string;
   highlight: string[];
@@ -16,11 +19,12 @@ export function DocumentView({ draft, sealState, sealDetail, highlight, stale, o
   return (
     <article className="paper flex min-h-[60vh] flex-col px-6 py-6 sm:px-8" aria-label="Contract preview" aria-busy={stale}>
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-1"><SealBar hash={draft?.document_hash} state={sealState} detail={sealDetail} /></div>
+        <div className="min-w-[min(100%,17rem)] flex-1" data-tour="seal"><SealBar hash={draft?.document_hash} state={sealState} detail={sealDetail} /></div>
         {draft && onDownload && (
           <Button variant="ghost" size="sm" icon={<Download className="size-4" />} onClick={onDownload} className="border-paper-300 bg-white/70">Word file</Button>
         )}
       </div>
+      {draft && <ProofMatrix text={draft.verification} chain={chain} />}
       {!draft ? (
         <div className="my-auto flex flex-col items-center gap-3 py-16 text-center text-paper-700">
           <FileText className="size-8 text-paper-300" />

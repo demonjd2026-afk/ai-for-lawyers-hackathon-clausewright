@@ -12,7 +12,7 @@ export function PanelHeading({ title, lede, aside, id }: { title: ReactNode; led
   return (
     <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
       <div className="min-w-0 max-w-prose">
-        <h2 id={id} className="font-serif text-[1.45rem] leading-tight font-semibold tracking-tight text-ink-900">{title}</h2>
+        <h2 id={id} className="font-display text-[1.45rem] leading-tight font-semibold tracking-tight text-ink-900">{title}</h2>
         {lede && <p className="mt-1.5 text-[0.9rem] leading-relaxed text-mist-700">{lede}</p>}
       </div>
       {aside && <div className="flex shrink-0 items-center gap-2">{aside}</div>}
@@ -32,9 +32,9 @@ export function SectionTitle({ children, aside }: { children: ReactNode; aside?:
 
 type Tone = "ok" | "warn" | "err" | "info";
 const NOTICE: Record<Tone, { cls: string; Icon: typeof Info }> = {
-  ok: { cls: "border-teal-500/40 bg-teal-500/8 text-teal-900", Icon: CheckCircle2 },
-  warn: { cls: "border-saffron-500/50 bg-saffron-500/10 text-saffron-900", Icon: AlertTriangle },
-  err: { cls: "border-vermilion-500/40 bg-vermilion-500/8 text-vermilion-900", Icon: XCircle },
+  ok: { cls: "border-ok-500/40 bg-ok-500/8 text-ok-900", Icon: CheckCircle2 },
+  warn: { cls: "border-warn-500/50 bg-warn-500/10 text-warn-900", Icon: AlertTriangle },
+  err: { cls: "border-bad-500/40 bg-bad-500/8 text-bad-900", Icon: XCircle },
   info: { cls: "border-ink-300/50 bg-ink-500/6 text-ink-800", Icon: Info },
 };
 
@@ -49,12 +49,12 @@ export function Notice({ tone, children, className, ...rest }: HTMLAttributes<HT
 }
 
 const BADGE: Record<string, string> = {
-  blocker: "bg-vermilion-500 text-white",
-  warning: "bg-saffron-500 text-ink-950",
+  blocker: "bg-bad-500 text-white",
+  warning: "bg-warn-400 text-ink-950",
   info: "bg-ink-500/12 text-ink-700",
-  ok: "bg-teal-500/15 text-teal-600",
-  high: "bg-vermilion-500 text-white",
-  medium: "bg-saffron-500 text-ink-950",
+  ok: "bg-ok-500/15 text-ok-600",
+  high: "bg-bad-500 text-white",
+  medium: "bg-warn-400 text-ink-950",
   low: "bg-ink-500/12 text-ink-700",
   neutral: "bg-mist-200 text-mist-700",
   dark: "bg-ink-900 text-white",
@@ -68,8 +68,8 @@ export function Stat({ label, value, tone, className }: { label: ReactNode; valu
   return (
     <div className={clsx("rounded-lg border border-mist-200 bg-mist-50 px-4 py-3", className)}>
       <div className="text-[0.74rem] font-semibold text-mist-500">{label}</div>
-      <div className={clsx("mt-0.5 font-serif text-[1.45rem] leading-none font-semibold tabular-nums",
-        tone === "ok" ? "text-teal-600" : tone === "warn" ? "text-saffron-600" : tone === "err" ? "text-vermilion-600" : "text-ink-900")}>{value}</div>
+      <div className={clsx("mt-0.5 font-display text-[1.45rem] leading-none font-semibold tabular-nums",
+        tone === "ok" ? "text-ok-600" : tone === "warn" ? "text-warn-600" : tone === "err" ? "text-bad-600" : "text-ink-900")}>{value}</div>
     </div>
   );
 }

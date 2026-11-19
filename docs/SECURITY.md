@@ -32,7 +32,7 @@
 
 ## Pinned versions
 
-Python 3.13; FastAPI 0.162.0, Pydantic 2.14.2, anthropic 2.4.0, uvicorn 0.54.0, python-docx 1.2.0. Solidity 0.8.38, OpenZeppelin 5.6.1, Hardhat 3.21.2, forge-std 1.17.0. React 19.3.1, Vite 8.3.5, TypeScript 7.0.2, Tailwind CSS 4.3.4, Radix UI (dialog 1.3.1, select 2.4.1, tabs 1.2.1, tooltip 1.4.1), Motion 14.9.0, lucide-react 1.67.0, viem 2.57.14.
+Python 3.13; FastAPI 0.162.0, Pydantic 2.14.2, anthropic 2.4.0, uvicorn 0.54.0, python-docx 1.2.0. Solidity 0.8.38, OpenZeppelin 5.6.1, Hardhat 3.21.2, forge-std 1.17.0. React 19.3.1, Vite 8.3.5, TypeScript 7.0.2, Tailwind CSS 4.3.4, Radix UI (dialog 1.3.1, select 2.4.1, tabs 1.2.1, tooltip 1.4.1), Motion 14.9.0, lucide-react 1.67.0, viem 2.57.14. Fonts are bundled (Bricolage Grotesque, Geist, Geist Mono, Newsreader via `@fontsource-variable` 5.3.0).
 
 ## Not in scope for the hackathon build
 

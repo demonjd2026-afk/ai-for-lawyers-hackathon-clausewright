@@ -4,7 +4,7 @@ Contracts for Indian small businesses that check themselves against the law, and
 
 Built for the HackIndia **AI for Lawyers Hackathon 2026**, problem statement **PS-03 · Smart Contract Creation**.
 
-**Live demo: [clausewright.onrender.com](https://clausewright.onrender.com/)** — no sign-up and no wallet needed. Choose *Draft a contract → Website build for a client → Apply fixes → Set up escrow → Deploy escrow* to run the whole flow on the hosted demo chain. The free host sleeps when idle, so the first load can take up to a minute.
+**Live demo: [clausewright.onrender.com](https://clausewright.onrender.com/)** — no sign-up and no wallet needed. Press **Watch the demo** and the app drives itself through the whole flow in about a minute: load a deal, fix six legal defects, draft, deploy the escrow, verify 63 of 63 checks, fund, accept and withdraw. Or do it by hand: *Draft → Website build for a client → Apply fixes → Set up escrow → Deploy escrow*. The free host sleeps when idle, so the first load can take up to a minute.
 
 ## The problem
 

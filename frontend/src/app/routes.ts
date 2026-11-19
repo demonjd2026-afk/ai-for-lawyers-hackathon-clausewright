@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import { withTransition } from "./transition";
 
 export const ROUTES = [
-  { id: "home", label: "Overview", short: "Home" },
+  { id: "home", label: "Overview", short: "Overview" },
   { id: "draft", label: "Draft a contract", short: "Draft" },
   { id: "review", label: "Review a contract", short: "Review" },
   { id: "recover", label: "Recover a late payment", short: "Recover" },
@@ -22,7 +23,7 @@ export function navigate(id: RouteId) {
 export function useRoute(): RouteId {
   const [route, setRoute] = useState<RouteId>(parseHash);
   useEffect(() => {
-    const on = () => { setRoute(parseHash()); window.scrollTo({ top: 0 }); };
+    const on = () => withTransition(() => { setRoute(parseHash()); window.scrollTo({ top: 0 }); });
     window.addEventListener("hashchange", on);
     return () => window.removeEventListener("hashchange", on);
   }, []);

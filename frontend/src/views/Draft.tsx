@@ -6,6 +6,7 @@ import { Button } from "../components/ui/Button";
 import { Notice, Panel } from "../components/ui/Primitives";
 import { examples } from "../examples";
 import type { DraftResult, Finding, Meta, TermSheet, Verification } from "../types";
+import { withTransition } from "../app/transition";
 import { setPath } from "../util";
 import { DocumentView } from "./DocumentView";
 import type { Deployment } from "./Escrow";
@@ -44,11 +45,11 @@ function Steps({ steps, current, onPick }: {
         const active = s.id === current;
         return (
           <li key={s.id} className={clsx("flex min-w-0", active ? "flex-[3] sm:flex-1" : "flex-1")}>
-            <button type="button" disabled={!s.enabled} aria-current={active ? "step" : undefined} onClick={() => onPick(s.id)}
+            <button type="button" data-tour={`step-${s.id}`} aria-label={`Step ${i + 1}: ${s.label}${s.done ? ", done" : ""}`} disabled={!s.enabled} aria-current={active ? "step" : undefined} onClick={() => onPick(s.id)}
               className={clsx("flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[0.84rem] font-semibold whitespace-nowrap transition-colors",
                 active ? "bg-ink-900 text-white" : s.enabled ? "text-ink-800 hover:bg-mist-100" : "text-mist-300")}>
               <span className={clsx("grid size-5 shrink-0 place-items-center rounded-full text-[0.68rem] font-bold tabular-nums",
-                active ? "bg-saffron-500 text-ink-950" : s.done ? "bg-teal-500 text-white" : s.enabled ? "bg-mist-200 text-ink-700" : "bg-mist-100 text-mist-300")}>
+                active ? "bg-accent-500 text-white" : s.done ? "bg-ok-500 text-white" : s.enabled ? "bg-mist-200 text-ink-700" : "bg-mist-100 text-mist-300")}>
                 {s.done && !active ? <Check className="size-3" strokeWidth={3} /> : i + 1}
               </span>
               <span className={clsx(!active && "hidden sm:inline")}>{s.label}</span>
@@ -126,7 +127,9 @@ export function Draft({ meta }: { meta: Meta }) {
     for (const f of findings) if (f.autofix && f.severity !== "info") next = setPath(next, f.autofix.path, f.autofix.value);
     setTs(next);
   };
-  const jump = () => setStep("terms");
+  /** Change wizard step with a cross-fade and bring the panel back to the top. */
+  const go = (next: Step) => withTransition(() => setStep(next));
+  const jump = () => go("terms");
   const saveDocx = async () => { if (ts && draft) download(await api.docx(ts), `${draft.title.toLowerCase().replace(/ /g, "-")}.docx`); };
 
   const steps: { id: Step; label: string; enabled: boolean; done: boolean }[] = useMemo(() => [
@@ -139,7 +142,7 @@ export function Draft({ meta }: { meta: Meta }) {
   return (
     <div className="mx-auto grid max-w-[1500px] gap-6 px-4 py-5 sm:px-6 lg:px-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <div className="min-w-0 space-y-4">
-        <Steps steps={steps} current={step} onPick={setStep} />
+        <Steps steps={steps} current={step} onPick={go} />
 
         {error && (
           <Notice tone="err" role="alert">
@@ -157,7 +160,7 @@ export function Draft({ meta }: { meta: Meta }) {
         <Panel>
           {step === "describe" && (
             <Intake llm={meta.llm_enabled} current={ts}
-              onTermSheet={(t, next) => { setTs(t); setDeployment(null); setStep(next); }} />
+              onTermSheet={(t, next) => { setTs(t); setDeployment(null); go(next); }} />
           )}
           {step === "terms" && ts && <TermsForm ts={ts} states={meta.states} findings={findings} onChange={update}
             localChainLabel={meta.demo_chain.hosted ? "Hosted demo chain" : "Local test chain"} />}
@@ -177,12 +180,12 @@ export function Draft({ meta }: { meta: Meta }) {
           {ts && step !== "describe" && (
             <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-mist-200 pt-5">
               {step === "terms" && (
-                <Button onClick={() => setStep("checks")} icon={<ArrowRight className="size-4" />}>
+                <Button onClick={() => go("checks")} icon={<ArrowRight className="size-4" />}>
                   Review {findings.length} {findings.length === 1 ? "check" : "checks"}{blockers ? ` · ${blockers} must fix` : ""}
                 </Button>
               )}
               {step === "checks" && draft?.escrow && (
-                <Button onClick={() => setStep("escrow")} icon={<Link2 className="size-4" />}>Set up escrow</Button>
+                <Button data-tour="go-escrow" onClick={() => go("escrow")} icon={<Link2 className="size-4" />}>Set up escrow</Button>
               )}
               {step === "checks" && !draft?.escrow && blockers === 0 && draft && (
                 <Button variant="secondary" onClick={saveDocx} icon={<Download className="size-4" />}>Download Word file</Button>
@@ -198,8 +201,8 @@ export function Draft({ meta }: { meta: Meta }) {
         </Panel>
       </div>
 
-      <div className="min-w-0 xl:sticky xl:top-5 xl:self-start xl:max-h-[calc(100dvh-2.5rem)] xl:overflow-y-auto xl:rounded-xl">
-        <DocumentView draft={draft} sealState={sealState} sealDetail={sealDetail} highlight={highlight} stale={stale} onDownload={saveDocx} />
+      <div className="min-w-0 xl:sticky xl:top-22 xl:self-start xl:max-h-[calc(100dvh-6.5rem)] xl:overflow-y-auto xl:rounded-xl">
+        <DocumentView draft={draft} chain={deployment ? chainOk : null} sealState={sealState} sealDetail={sealDetail} highlight={highlight} stale={stale} onDownload={saveDocx} />
       </div>
     </div>
   );

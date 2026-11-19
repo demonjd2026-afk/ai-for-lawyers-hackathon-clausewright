@@ -5,8 +5,8 @@ import { Authority, Badge, Empty, PanelHeading } from "../components/ui/Primitiv
 import type { Finding } from "../types";
 
 const SEV = {
-  blocker: { label: "Must fix", tone: "blocker" as const, Icon: CircleAlert, bar: "bg-vermilion-500" },
-  warning: { label: "Should fix", tone: "warning" as const, Icon: CircleAlert, bar: "bg-saffron-500" },
+  blocker: { label: "Must fix", tone: "blocker" as const, Icon: CircleAlert, bar: "bg-bad-500" },
+  warning: { label: "Should fix", tone: "warning" as const, Icon: CircleAlert, bar: "bg-warn-500" },
   info: { label: "Good to know", tone: "info" as const, Icon: Info, bar: "bg-ink-300" },
 };
 
@@ -22,12 +22,12 @@ export function Findings({ findings, onFix, onFixAll, onJump }: {
     <section aria-labelledby="checks-h">
       <PanelHeading id="checks-h" title="Checks against Indian law"
         lede="Every check cites the provision or judgment it comes from. Nothing is drafted while a must-fix item is open."
-        aside={fixable > 1 && <Button size="sm" icon={<Wand2 className="size-4" />} onClick={onFixAll}>Apply {fixable} fixes</Button>} />
+        aside={fixable > 1 && <Button size="sm" data-tour="fix-all" icon={<Wand2 className="size-4" />} onClick={onFixAll}>Apply {fixable} fixes</Button>} />
 
-      <div className="mb-5 grid grid-cols-3 gap-2" aria-live="polite">
+      <div className="mb-5 grid grid-cols-3 gap-2" aria-live="polite" data-tour="findings-summary">
         {(["blocker", "warning", "info"] as const).map((s) => (
-          <div key={s} className={clsx("rounded-lg border px-3 py-2.5", count(s) && s === "blocker" ? "border-vermilion-500/40 bg-vermilion-500/6" : "border-mist-200 bg-mist-50")}>
-            <div className="font-serif text-[1.5rem] leading-none font-semibold tabular-nums text-ink-900">{count(s)}</div>
+          <div key={s} className={clsx("rounded-lg border px-3 py-2.5", count(s) && s === "blocker" ? "border-bad-500/40 bg-bad-500/6" : "border-mist-200 bg-mist-50")}>
+            <div className="font-display text-[1.5rem] leading-none font-semibold tabular-nums text-ink-900">{count(s)}</div>
             <div className="mt-1 text-[0.74rem] font-semibold text-mist-700">{SEV[s].label.toLowerCase()}</div>
           </div>
         ))}

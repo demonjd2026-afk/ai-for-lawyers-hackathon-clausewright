@@ -11,8 +11,8 @@ function Wrap({ id, label, hint, flag, children, className }: {
     <div className={clsx("flex min-w-0 flex-col gap-1", className)}>
       <label htmlFor={id} className="flex items-center gap-2 text-[0.78rem] font-semibold text-mist-700">
         {label}
-        {flag === "blocker" && <span className="size-1.5 rounded-full bg-vermilion-500" aria-label="Must fix" />}
-        {flag === "warning" && <span className="size-1.5 rounded-full bg-saffron-500" aria-label="Should fix" />}
+        {flag === "blocker" && <span className="size-1.5 rounded-full bg-bad-500" aria-label="Must fix" />}
+        {flag === "warning" && <span className="size-1.5 rounded-full bg-warn-500" aria-label="Should fix" />}
       </label>
       {children}
       {hint && <p className="text-[0.74rem] leading-snug text-mist-500">{hint}</p>}
@@ -20,7 +20,7 @@ function Wrap({ id, label, hint, flag, children, className }: {
   );
 }
 
-const flagClass = (flag: Flag) => (flag === "warning" ? "border-saffron-500/70" : undefined);
+const flagClass = (flag: Flag) => (flag === "warning" ? "border-warn-500/70" : undefined);
 
 export function Text(props: {
   label: string; value: string | null | undefined; onChange: (v: string) => void; flag?: Flag;
@@ -113,9 +113,9 @@ export function Select<T extends string>(props: {
 export function Check(props: { label: ReactNode; checked: boolean | undefined; onChange: (v: boolean) => void; hint?: ReactNode; className?: string }) {
   const id = useId();
   return (
-    <label htmlFor={id} className={clsx("flex cursor-pointer items-start gap-3 rounded-md border border-mist-200 bg-white px-3 py-2.5 transition-colors hover:border-mist-300 has-checked:border-teal-500/50 has-checked:bg-teal-500/5", props.className)}>
+    <label htmlFor={id} className={clsx("flex cursor-pointer items-start gap-3 rounded-md border border-mist-200 bg-white px-3 py-2.5 transition-colors hover:border-mist-300 has-checked:border-ok-500/50 has-checked:bg-ok-500/5", props.className)}>
       <input id={id} type="checkbox" checked={!!props.checked} onChange={(e) => props.onChange(e.target.checked)}
-        className="mt-0.5 size-4 shrink-0 accent-teal-600" />
+        className="mt-0.5 size-4 shrink-0 accent-ok-600" />
       <span className="text-[0.86rem] leading-snug text-ink-900">
         {props.label}
         {props.hint && <span className="mt-0.5 block text-[0.74rem] text-mist-500">{props.hint}</span>}
