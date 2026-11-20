@@ -46,10 +46,10 @@ export function Home({ meta }: { meta: Meta | null }) {
               provably the same as the words on the page.
             </motion.p>
             <motion.div {...rise(3)} className="mt-8 flex flex-wrap gap-3">
-              <Button size="lg" onClick={() => void startTour()} icon={<Play className="size-4 fill-current" />}>Watch it run in 90 seconds</Button>
+              <Button size="lg" onClick={() => void startTour()} icon={<Play className="size-4 fill-current" />}>Watch the full demo</Button>
               <Button size="lg" variant="secondary" onClick={() => navigate("draft")} icon={<FileSignature className="size-4.5" />}>Draft a contract</Button>
             </motion.div>
-            <motion.p {...rise(4)} className="mt-4 text-[0.84rem] text-mist-700">No sign-up and no wallet. The demo drives the real interface on a hosted test chain.</motion.p>
+            <motion.p {...rise(4)} className="mt-4 text-[0.84rem] text-mist-700">No sign-up and no wallet. The demo drives the real interface through all four tools in about three minutes; stop it any time.</motion.p>
           </div>
           <motion.div {...rise(3)}><BindingLoom /></motion.div>
         </div>

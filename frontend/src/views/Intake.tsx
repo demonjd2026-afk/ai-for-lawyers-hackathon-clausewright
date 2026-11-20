@@ -60,7 +60,7 @@ export function Intake({ llm, current, onTermSheet }: {
             </Notice>
           )}
           <label className="sr-only" htmlFor="deal">Deal description</label>
-          <textarea id="deal" rows={6} value={text} onChange={(e) => setText(e.target.value)} className="control leading-relaxed"
+          <textarea id="deal" data-tour="describe-box" rows={6} value={text} onChange={(e) => setText(e.target.value)} className="control leading-relaxed"
             placeholder="I run Pixelnest Studio in Vizag, a micro enterprise. Kaveri Organics in Bengaluru wants a website: design for 1.5 lakh by 1 December, build for 3.5 lakh by mid-January…" />
           {err && <Notice tone="err" role="alert" className="mt-3">{err}</Notice>}
           <div className="mt-3 flex flex-wrap gap-2">

@@ -38,7 +38,7 @@ export function TourOverlay() {
         className="fixed inset-x-3 bottom-4 z-[70] mx-auto flex max-w-2xl items-start gap-4 rounded-2xl bg-ink-900 p-4 text-white shadow-[0_24px_60px_-20px_rgb(8_17_13/0.7)] sm:p-5">
         <div className="min-w-0 flex-1">
           <div className="mb-1.5 flex items-center gap-2 text-[0.72rem] font-bold text-ok-300">
-            {tour.error ? "Guided demo" : <>Guided demo <span className="tabular-nums text-ink-300">{tour.index + 1} of {tour.total}</span></>}
+            {tour.error ? "Guided demo" : <>{tour.chapter || "Guided demo"} <span className="tabular-nums text-ink-300">{tour.index + 1} of {tour.total}</span></>}
           </div>
           <p className="text-[0.98rem] leading-snug [text-wrap:pretty]">{tour.error ?? tour.caption}</p>
           {!tour.error && (

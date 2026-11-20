@@ -12,16 +12,21 @@ export interface TourStep {
   click?: boolean;
   /** How long to hold before acting, in ms. */
   hold?: number;
+  /** Skip the step when its target is not on the page (a feature that is switched off). */
+  optional?: boolean;
 }
 
-export interface Tour { route: RouteId; steps: TourStep[] }
+/** One page's worth of a demo: where it happens, what to call it, and its script. */
+export interface Chapter { route: RouteId; name: string; steps: TourStep[] }
 
 const DRAFT: TourStep[] = [
   { target: "step-describe", click: true, hold: 900, caption: "A micro design studio is building a website for a client. We start from that deal." },
-  { target: "example-service", click: true, caption: "The worked example loads, and Clausewright checks its terms against Indian law at once." },
+  { target: "describe-box", optional: true, hold: 3600, caption: "You can describe the deal in plain English or Hinglish. An AI pulls out the terms, and each one is checked against your own words." },
+  { target: "example-service", click: true, caption: "Here we load the worked example instead. Clausewright checks its terms against Indian law at once." },
   { target: "findings-summary", hold: 3200, caption: "Six must-fix problems, such as 60-day payment to a micro supplier, a void non-compete and a one-sided arbitrator." },
   { target: "fix-all", click: true, caption: "Every finding cites its authority and carries a fix. Apply them all." },
   { target: "seal", hold: 3200, caption: "With no blockers left, the contract is drafted and fingerprinted. This rosette is engraved from its SHA-256." },
+  { target: "docx", hold: 2600, caption: "The finished contract downloads as a Word file, ready to sign or send to an advocate." },
   { target: "go-escrow", click: true, caption: "Now bind the contract to an escrow." },
   { target: "deploy", click: true, caption: "The escrow's settings come from the same terms and are printed in the contract as Schedule B. Deploy it." },
   { target: "verified", hold: 3400, caption: "Read back from chain: every check agrees, the proof matrix fills and the seal turns to three inks." },
@@ -35,7 +40,7 @@ const DRAFT: TourStep[] = [
   { target: "accept-0", click: true, caption: "The client accepts and the money is released. Had the client stayed silent, the escrow would release it by itself after the window." },
   { target: "role-payee", click: true, hold: 700, caption: "" },
   { target: "withdraw-payee", click: true, caption: "The provider withdraws. Paid on time, by code." },
-  { target: "funds", hold: 3600, caption: "That is the whole loop: one term sheet, a lawful contract, and an escrow proven to match it. Review, Recover and Prove each have a short demo too." },
+  { target: "funds", hold: 3600, caption: "That is the whole loop: one term sheet, a lawful contract, and an escrow proven to match it." },
 ];
 
 const REVIEW: TourStep[] = [
@@ -60,17 +65,25 @@ const EVIDENCE: TourStep[] = [
   { target: "prove-cert", hold: 4200, caption: "Part A, ready for signature. Your own file never leaves the browser; only its hash is sent." },
 ];
 
+const CHAPTERS = {
+  draft: { route: "draft", name: "Draft and escrow", steps: DRAFT },
+  review: { route: "review", name: "Review", steps: REVIEW },
+  recover: { route: "recover", name: "Recover", steps: RECOVER },
+  evidence: { route: "evidence", name: "Prove", steps: EVIDENCE },
+} satisfies Partial<Record<RouteId, Chapter>>;
+
+/** The full demo walks every tool in turn; each page can also play its own chapter. */
 export const TOURS = {
-  draft: { route: "draft", steps: DRAFT },
-  review: { route: "review", steps: REVIEW },
-  recover: { route: "recover", steps: RECOVER },
-  evidence: { route: "evidence", steps: EVIDENCE },
-} satisfies Partial<Record<RouteId, Tour>>;
+  full: [CHAPTERS.draft, CHAPTERS.review, CHAPTERS.recover, CHAPTERS.evidence],
+  review: [CHAPTERS.review],
+  recover: [CHAPTERS.recover],
+  evidence: [CHAPTERS.evidence],
+} satisfies Record<string, Chapter[]>;
 
 export type TourId = keyof typeof TOURS;
 
-export interface TourState { running: boolean; index: number; total: number; caption: string; target: string | null; error: string | null }
-const IDLE: TourState = { running: false, index: 0, total: 0, caption: "", target: null, error: null };
+export interface TourState { running: boolean; index: number; total: number; chapter: string; caption: string; target: string | null; error: string | null }
+const IDLE: TourState = { running: false, index: 0, total: 0, chapter: "", caption: "", target: null, error: null };
 
 let state: TourState = IDLE;
 let token = 0;
@@ -80,7 +93,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export const findTarget = (id: string) => document.querySelector<HTMLElement>(`[data-tour="${id}"]`);
 
-async function waitFor(id: string, my: number, timeout = 45_000): Promise<HTMLElement | null> {
+async function waitFor(id: string, my: number, timeout: number): Promise<HTMLElement | null> {
   const end = Date.now() + timeout;
   while (Date.now() < end && my === token) {
     const el = findTarget(id);
@@ -90,28 +103,34 @@ async function waitFor(id: string, my: number, timeout = 45_000): Promise<HTMLEl
   return null;
 }
 
-export async function startTour(id: TourId = "draft") {
-  const { route, steps } = TOURS[id];
+export async function startTour(id: TourId = "full") {
+  const chapters: Chapter[] = TOURS[id];
+  const total = chapters.reduce((n, c) => n + c.steps.length, 0);
   const my = ++token;
-  navigate(route);
-  let caption = "";
-  for (let i = 0; i < steps.length; i++) {
-    const step = steps[i];
-    const el = await waitFor(step.target, my);
-    if (my !== token) return;
-    if (!el) {
-      set({ ...state, running: false, target: null, error: "The demo stopped because the next control did not appear. You can carry on by hand from here." });
-      return;
+  let done = 0;
+  for (const chapter of chapters) {
+    navigate(chapter.route);
+    let caption = "";
+    for (const step of chapter.steps) {
+      const index = done++;
+      // Results can take a while on a cold server; an optional control is either there at once or not at all.
+      const el = await waitFor(step.target, my, step.optional ? 1500 : 45_000);
+      if (my !== token) return;
+      if (!el) {
+        if (step.optional) continue;
+        set({ ...state, running: false, target: null, error: "The demo stopped because the next control did not appear. You can carry on by hand from here." });
+        return;
+      }
+      caption = step.caption || caption;
+      // Centre small controls; show tall results from their top, clear of the floating header.
+      if (el.offsetHeight > innerHeight * 0.55) scrollTo({ top: el.getBoundingClientRect().top + scrollY - 96, behavior: "smooth" });
+      else el.scrollIntoView({ block: "center", behavior: "smooth" });
+      set({ running: true, index, total, chapter: chapters.length > 1 ? chapter.name : "", caption, target: step.target, error: null });
+      await sleep(step.hold ?? 2600);
+      if (my !== token) return;
+      if (step.click) findTarget(step.target)?.click();
+      await sleep(350);
     }
-    caption = step.caption || caption;
-    // Centre small controls; show tall results from their top, clear of the floating header.
-    if (el.offsetHeight > innerHeight * 0.55) scrollTo({ top: el.getBoundingClientRect().top + scrollY - 96, behavior: "smooth" });
-    else el.scrollIntoView({ block: "center", behavior: "smooth" });
-    set({ running: true, index: i, total: steps.length, caption, target: step.target, error: null });
-    await sleep(step.hold ?? 2600);
-    if (my !== token) return;
-    if (step.click) findTarget(step.target)?.click();
-    await sleep(350);
   }
   if (my === token) set(IDLE);
 }

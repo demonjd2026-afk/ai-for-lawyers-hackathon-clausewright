@@ -21,7 +21,7 @@ export function DocumentView({ draft, chain, sealState, sealDetail, highlight, s
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-[min(100%,17rem)] flex-1" data-tour="seal"><SealBar hash={draft?.document_hash} state={sealState} detail={sealDetail} /></div>
         {draft && onDownload && (
-          <Button variant="ghost" size="sm" icon={<Download className="size-4" />} onClick={onDownload} className="border-paper-300 bg-white/70">Word file</Button>
+          <Button data-tour="docx" variant="ghost" size="sm" icon={<Download className="size-4" />} onClick={onDownload} className="border-paper-300 bg-white/70">Word file</Button>
         )}
       </div>
       {draft && <ProofMatrix text={draft.verification} chain={chain} />}
