@@ -10,7 +10,10 @@ export const REPO_URL = "https://github.com/demonjd2026-afk/ai-for-lawyers-hacka
 interface Command { id: string; label: string; hint: string; Icon: typeof Scale; run: () => void }
 
 const COMMANDS: Command[] = [
-  { id: "demo", label: "Watch the guided demo", hint: "Plays the whole flow on the real interface", Icon: Play, run: () => void startTour() },
+  { id: "demo", label: "Watch the guided demo", hint: "Draft, check and escrow a contract on the real interface", Icon: Play, run: () => void startTour() },
+  { id: "demo-review", label: "Watch the review demo", hint: "A draft with traps, read clause by clause", Icon: Play, run: () => void startTour("review") },
+  { id: "demo-recover", label: "Watch the recovery demo", hint: "Two unpaid invoices become a demand notice", Icon: Play, run: () => void startTour("recover") },
+  { id: "demo-evidence", label: "Watch the proof demo", hint: "Fingerprint a contract and certify it", Icon: Play, run: () => void startTour("evidence") },
   { id: "draft", label: "Draft a contract", hint: "Service agreement, NDA or appointment letter", Icon: FileSignature, run: () => navigate("draft") },
   { id: "review", label: "Review a contract you were sent", hint: "Flags void and risky clauses", Icon: ScrollText, run: () => navigate("review") },
   { id: "recover", label: "Recover a late payment", hint: "Section 16 interest and a demand notice", Icon: Banknote, run: () => navigate("recover") },

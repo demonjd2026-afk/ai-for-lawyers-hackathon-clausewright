@@ -1,11 +1,13 @@
 import { clsx } from "clsx";
-import { Download, FileCheck2, FileUp, ShieldCheck } from "lucide-react";
+import { Download, FileCheck2, FileText, FileUp, ShieldCheck } from "lucide-react";
 import { useId, useState } from "react";
 import { api, download } from "../api";
+import { DemoButton } from "../app/DemoButton";
 import { Markdown } from "../components/Markdown";
 import { Button } from "../components/ui/Button";
 import { Text } from "../components/ui/Field";
 import { Empty, Notice, Panel, PanelHeading, SectionTitle } from "../components/ui/Primitives";
+import { examples } from "../examples";
 
 async function sha256Hex(buf: ArrayBuffer): Promise<string> {
   const d = await crypto.subtle.digest("SHA-256", buf);
@@ -27,6 +29,7 @@ export function Evidence() {
   const [compare, setCompare] = useState("");
   const [cert, setCert] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [sampling, setSampling] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   async function onFile(f: File | undefined) {
@@ -39,6 +42,28 @@ export function Evidence() {
       setHash(await sha256Hex(await f.arrayBuffer()));
     } finally {
       setHashing(false);
+    }
+  }
+
+  /** Draft the worked example and use its fingerprint, as if the user held that contract. */
+  async function useSample() {
+    setErr(null);
+    setSampling(true);
+    try {
+      // The mutual NDA has no must-fix findings, so it drafts as it stands.
+      const ts = examples().find((e) => e.id === "nda")!.ts;
+      const d = await api.draft(ts);
+      setFileName(null);
+      setHash(d.document_hash);
+      setCompare(d.document_hash);
+      setTitle(d.title);
+      setName(ts.client.signatory_name ?? ts.client.name);
+      setRoleTitle(ts.client.signatory_designation ? `${ts.client.signatory_designation}, ${ts.client.name}` : "Party to the agreement");
+      setCert(null);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSampling(false);
     }
   }
 
@@ -63,7 +88,7 @@ export function Evidence() {
   return (
     <div className="mx-auto grid max-w-[1500px] gap-6 px-4 py-5 sm:px-6 lg:px-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <Panel className="self-start">
-        <PanelHeading title="Prove a document has not changed"
+        <PanelHeading title="Prove a document has not changed" aside={<DemoButton tour="evidence" />}
           lede="Courts admit electronic records with a certificate under section 63 of the Bharatiya Sakshya Adhiniyam, 2023, which must state the record's hash. The hash is computed here in your browser; the file is never uploaded." />
 
         <label htmlFor={fileId}
@@ -77,12 +102,16 @@ export function Evidence() {
           <input id={fileId} type="file" className="sr-only" onChange={(e) => onFile(e.target.files?.[0])} />
         </label>
 
+        <div className="mt-3">
+          <Button data-tour="prove-sample" variant="ghost" size="sm" loading={sampling} onClick={useSample} icon={<FileText className="size-4" />}>Use the sample contract</Button>
+        </div>
+
         <div className="mt-4 space-y-3">
           <Text mono label="SHA-256" value={hash} onChange={(v) => setHash(v.trim())} placeholder="0x…" flag={hash && !HASH_RE.test(hash) ? "blocker" : undefined}
             hint="Or paste the fingerprint printed on a Clausewright contract." />
           <Text mono label="Compare with the fingerprint recorded in the escrow" value={compare} onChange={setCompare} placeholder="0x…" />
           {match !== null && (
-            <Notice tone={match ? "ok" : "err"} role="status">
+            <Notice data-tour="prove-match" tone={match ? "ok" : "err"} role="status">
               {match ? <><strong>Identical.</strong> This is the document that was recorded.</> : <><strong>Different.</strong> This is not the document that was recorded.</>}
             </Notice>
           )}
@@ -97,13 +126,13 @@ export function Evidence() {
         </div>
         {err && <Notice tone="err" role="alert" className="mt-3">{err}</Notice>}
         <div className="mt-5">
-          <Button loading={busy} disabled={!HASH_RE.test(hash) || !name || !roleTitle} onClick={make} icon={<FileCheck2 className="size-4" />}>Draft certificate</Button>
+          <Button data-tour="prove-draft" loading={busy} disabled={!HASH_RE.test(hash) || !name || !roleTitle} onClick={make} icon={<FileCheck2 className="size-4" />}>Draft certificate</Button>
         </div>
       </Panel>
 
-      <div className="self-start">
+      <div className="min-w-0 self-start">
         {cert ? (
-          <>
+          <div data-tour="prove-cert">
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <h3 className="text-[0.95rem] font-bold text-ink-900">Certificate under s.63(4), Part A</h3>
               <Button size="sm" variant="ghost" className="ml-auto" icon={<Download className="size-4" />}
@@ -113,7 +142,7 @@ export function Evidence() {
             <p className="mt-3 text-[0.8rem] leading-relaxed text-mist-700">
               Part B must be completed by an expert who computes the hash independently. The on-chain record supports the certificate; it does not replace it.
             </p>
-          </>
+          </div>
         ) : (
           <Panel>
             <Empty icon={<ShieldCheck className="size-8" />} title="The draft certificate appears here">

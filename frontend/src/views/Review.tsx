@@ -4,6 +4,7 @@ import { useState } from "react";
 import { api, type ReviewOut } from "../api";
 import { Button } from "../components/ui/Button";
 import { Select } from "../components/ui/Field";
+import { DemoButton } from "../app/DemoButton";
 import { Authority, Badge, Empty, Notice, Panel, PanelHeading, Stat } from "../components/ui/Primitives";
 
 const SAMPLE = `1. Services. The Vendor shall design and build the Company's mobile app.
@@ -54,11 +55,13 @@ export function Review({ llm }: { llm: boolean }) {
   const byClause = new Map<number, ReviewOut["issues"]>();
   out?.issues.forEach((i) => byClause.set(i.clause, [...(byClause.get(i.clause) ?? []), i]));
   const high = out?.issues.filter((i) => i.risk === "high").length ?? 0;
+  // The demo points at the first high-risk clause, or the first flagged one when none is high.
+  const spotlight = out?.issues.find((i) => i.risk === "high")?.clause ?? out?.issues[0]?.clause;
 
   return (
     <div className="mx-auto grid max-w-[1500px] gap-6 px-4 py-5 sm:px-6 lg:px-8 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
       <Panel className="self-start">
-        <PanelHeading title="Review a contract you were sent"
+        <PanelHeading title="Review a contract you were sent" aside={<DemoButton tour="review" />}
           lede={llm
             ? "Paste the other side's draft. Fixed rules flag the clauses Indian law treats as void or risky; an AI reviewer then reads each clause, but it may cite only authorities from Clausewright's verified list."
             : "Paste the other side's draft. Fixed rules flag the clauses Indian law treats as void or risky. Add an AI key on the server for a clause-by-clause AI read as well."} />
@@ -70,8 +73,8 @@ export function Review({ llm }: { llm: boolean }) {
         </div>
         {err && <Notice tone="err" role="alert" className="mt-3">{err}</Notice>}
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button loading={busy} disabled={text.trim().length < 20} onClick={run} icon={<Gavel className="size-4" />}>Review this contract</Button>
-          <Button variant="ghost" onClick={() => setText(SAMPLE)} icon={<ClipboardPaste className="size-4" />}>Paste a sample</Button>
+          <Button data-tour="review-run" loading={busy} disabled={text.trim().length < 20} onClick={run} icon={<Gavel className="size-4" />}>Review this contract</Button>
+          <Button data-tour="review-sample" variant="ghost" onClick={() => setText(SAMPLE)} icon={<ClipboardPaste className="size-4" />}>Paste a sample</Button>
         </div>
       </Panel>
 
@@ -88,7 +91,7 @@ export function Review({ llm }: { llm: boolean }) {
                 {out.meta.llm && ` ${out.meta.citations_dropped} AI ${out.meta.citations_dropped === 1 ? "citation" : "citations"} outside the verified list ${out.meta.citations_dropped === 1 ? "was" : "were"} removed.`}
                 {out.meta.llm_error && ` ${out.meta.llm_error}.`}
               </>} />
-            <div className="mb-5 grid grid-cols-3 gap-2">
+            <div data-tour="review-summary" className="mb-5 grid grid-cols-3 gap-2">
               <Stat label="Clauses read" value={out.meta.clauses} />
               <Stat label="High risk" value={high} tone={high ? "err" : "ok"} />
               <Stat label="Citations dropped" value={out.meta.llm ? out.meta.citations_dropped : "—"} />
@@ -99,7 +102,7 @@ export function Review({ llm }: { llm: boolean }) {
                 if (!issues) return null;
                 const worst = issues.some((x) => x.risk === "high") ? "high" : issues.some((x) => x.risk === "medium") ? "medium" : "low";
                 return (
-                  <article key={i} className="relative overflow-hidden rounded-lg border border-mist-200 bg-white">
+                  <article key={i} data-tour={i === spotlight ? "review-clause" : undefined} className="relative overflow-hidden rounded-lg border border-mist-200 bg-white">
                     <span className={clsx("absolute inset-y-0 left-0 w-1.5", RISK[worst].bar)} aria-hidden />
                     <blockquote className="border-b border-mist-200 bg-paper-50 py-3 pr-4 pl-5 font-serif text-[0.92rem] leading-relaxed text-paper-900">
                       {c.length > 400 ? c.slice(0, 400) + "…" : c}

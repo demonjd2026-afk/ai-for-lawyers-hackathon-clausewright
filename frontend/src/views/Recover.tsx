@@ -1,6 +1,7 @@
 import { Banknote, Calculator, Copy, Download, FileText, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { api, download, type InterestOut } from "../api";
+import { DemoButton } from "../app/DemoButton";
 import { Markdown } from "../components/Markdown";
 import { Button } from "../components/ui/Button";
 import { Money, Num, Select, Text } from "../components/ui/Field";
@@ -78,7 +79,7 @@ export function Recover({ meta }: { meta: Meta }) {
   return (
     <div className="mx-auto grid max-w-[1500px] gap-6 px-4 py-5 sm:px-6 lg:px-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <Panel className="self-start">
-        <PanelHeading title="Recover a late payment"
+        <PanelHeading title="Recover a late payment" aside={<DemoButton tour="recover" />}
           lede={<>
             A buyer must pay a micro or small enterprise within 45 days of accepting its work and owes compound interest at three times the RBI Bank Rate after that, whatever the contract says.
             {rate && <> Bank Rate used: <strong className="font-semibold text-ink-900">{rate.pct}%</strong> from {new Date(rate.from).toLocaleDateString("en-IN")}, so <strong className="font-semibold text-ink-900">{(rate.pct * 3).toFixed(2)}% a year</strong> with monthly rests.</>}
@@ -101,7 +102,7 @@ export function Recover({ meta }: { meta: Meta }) {
         </div>
 
         <SectionTitle aside={<span className="text-[0.8rem] text-mist-700">Total <strong className="font-semibold text-ink-900 tabular-nums">{inr(principal)}</strong></span>}>Unpaid invoices</SectionTitle>
-        <ol className="space-y-3" aria-label="Invoices">
+        <ol data-tour="recover-invoices" className="space-y-3" aria-label="Invoices">
           {invoices.map((inv, i) => (
             <li key={i} className="rounded-lg border border-mist-200 bg-mist-50/60 p-3">
               <div className="mb-2 flex items-center justify-between">
@@ -131,17 +132,17 @@ export function Recover({ meta }: { meta: Meta }) {
         </div>
         {err && <Notice tone="err" role="alert" className="mt-3">{err}</Notice>}
         <div className="mt-5 flex flex-wrap gap-2">
-          <Button loading={busy === "calc"} disabled={!!busy} onClick={compute} icon={<Calculator className="size-4" />}>Calculate interest</Button>
-          <Button variant="secondary" loading={busy === "notice"} disabled={!!busy} onClick={makeNotice} icon={<FileText className="size-4" />}>Draft demand notice</Button>
+          <Button data-tour="recover-calc" loading={busy === "calc"} disabled={!!busy} onClick={compute} icon={<Calculator className="size-4" />}>Calculate interest</Button>
+          <Button data-tour="recover-notice" variant="secondary" loading={busy === "notice"} disabled={!!busy} onClick={makeNotice} icon={<FileText className="size-4" />}>Draft demand notice</Button>
         </div>
       </Panel>
 
-      <div className="space-y-6 self-start">
+      <div className="min-w-0 space-y-6 self-start">
         <Panel aria-live="polite">
           {calc ? (
             <>
               <PanelHeading title="Your claim" lede="Principal plus section 16 interest, invoice by invoice." />
-              <div className="grid gap-2 sm:grid-cols-3">
+              <div data-tour="recover-claim" className="grid gap-2 sm:grid-cols-3">
                 <Stat label="Principal" value={inr(principal)} />
                 <Stat label="Interest under s.16" value={inr(total)} tone="warn" />
                 <Stat label="You can claim" value={inr(principal + total)} tone="ok" />
@@ -176,7 +177,7 @@ export function Recover({ meta }: { meta: Meta }) {
         </Panel>
 
         {notice && (
-          <div>
+          <div data-tour="recover-letter">
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <h3 className="text-[0.95rem] font-bold text-ink-900">Demand notice</h3>
               <span className="ml-auto flex gap-2">

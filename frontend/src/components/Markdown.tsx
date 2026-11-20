@@ -25,7 +25,7 @@ export function Body({ body }: { body: string }) {
           <table className="doc-table">
             <thead><tr>{head.map((h, j) => <th key={j}>{inline(h)}</th>)}</tr></thead>
             <tbody>{rest.map((r, k) => (
-              <tr key={k}>{r.map((c, j) => <td key={j} className={/^0x[0-9a-fA-F]{20,}/.test(c) ? "code" : undefined}>{inline(c)}</td>)}</tr>
+              <tr key={k}>{r.map((c, j) => <td key={j} className={/^(0x)?[0-9a-fA-F]{20,}$/.test(c) ? "code" : undefined}>{inline(c)}</td>)}</tr>
             ))}</tbody>
           </table>
         </div>,
