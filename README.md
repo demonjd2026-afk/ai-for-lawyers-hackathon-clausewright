@@ -4,7 +4,42 @@ Contracts for Indian small businesses that check themselves against the law, and
 
 Built for the HackIndia **AI for Lawyers Hackathon 2026**, problem statement **PS-03 · Smart Contract Creation**.
 
-**Live demo: [clausewright.onrender.com](https://clausewright.onrender.com/)** — no sign-up and no wallet needed. Press **Watch the demo** and the app drives itself through the whole flow in about a minute: load a deal, fix six legal defects, draft, deploy the escrow, verify 63 of 63 checks, fund, accept and withdraw. Or do it by hand: *Draft → Website build for a client → Apply fixes → Set up escrow → Deploy escrow*. The free host sleeps when idle, so the first load can take up to a minute.
+[![Watch the Clausewright demo video](docs/demo-thumbnail.jpg)](https://youtu.be/xrd0M-bRYHM)
+
+| | |
+|---|---|
+| **Live app** | [clausewright.onrender.com](https://clausewright.onrender.com/) — no sign-up and no wallet needed |
+| **Demo video** | [Watch on YouTube](https://youtu.be/xrd0M-bRYHM) — 3 minutes, filmed on the live app |
+| **Pitch deck** | [Open the 3D presentation](https://demonjd2026-afk.github.io/ai-for-lawyers-hackathon-clausewright/pitch/) — eight slides |
+| **Source code** | This repository |
+
+## Contents
+
+- [Try it](#try-it)
+- [The problem](#the-problem)
+- [What Clausewright does](#what-clausewright-does)
+- [Demo video and pitch deck](#demo-video-and-pitch-deck)
+- [Architecture](#architecture)
+- [Results](#results)
+- [Run it](#run-it)
+- [Repository](#repository)
+- [Documents](#documents)
+- [Limits](#limits)
+
+## Try it
+
+Open the [live app](https://clausewright.onrender.com/) and press **Watch the demo**. The app drives its own interface through all four tools in about three minutes, and you can stop it at any point:
+
+1. **Draft and escrow:** load a deal, fix six legal defects, draft the contract, deploy the escrow, verify 63 of 63 checks, then fund, deliver and accept a milestone.
+2. **Review:** a sample contract with common traps, read clause by clause.
+3. **Recover:** two unpaid invoices become an interest claim and a demand notice.
+4. **Prove:** a contract is matched to its recorded fingerprint and the court certificate is drafted.
+
+Review, Recover and Prove each also have a **Watch this page's demo** button that plays only that part.
+
+To do it by hand: *Draft → Website build for a client → Apply fixes → Set up escrow → Deploy escrow*.
+
+The free host sleeps when idle, so the first load can take up to a minute.
 
 ## The problem
 
@@ -26,6 +61,27 @@ Built for the HackIndia **AI for Lawyers Hackathon 2026**, problem statement **P
 | **Recover** | Computes s.16 interest (monthly rests, rate history) and drafts an MSME demand notice. |
 | **Prove** | Hashes a file in the browser and drafts Part A of the BSA s.63(4) certificate, which requires the hash. |
 
+## Demo video and pitch deck
+
+**Demo video (2:56).** [Watch on YouTube](https://youtu.be/xrd0M-bRYHM). It is a recording of the live app, in this order: the problem, drafting and legal checks, the contract's fingerprint, deploying and verifying the escrow, the milestone payment, then Review, Recover and Prove.
+
+**Pitch deck (8 slides).** [Open the presentation](https://demonjd2026-afk.github.io/ai-for-lawyers-hackathon-clausewright/pitch/). Use the arrow keys, Space or a swipe to move between slides, and F for full screen.
+
+[![Clausewright pitch deck](docs/pitch/preview.png)](https://demonjd2026-afk.github.io/ai-for-lawyers-hackathon-clausewright/pitch/)
+
+| Slide | What it covers |
+|---|---|
+| 1 | Title |
+| 2 | The problem: unenforceable clauses, unlawful payment terms, invented authorities |
+| 3 | The idea: one term sheet, a contract and an escrow, proven identical |
+| 4 | How it works: describe, check, draft, bind, verify |
+| 5 | What is new: the three-way check, the fenced-in AI reviewer, the hash-driven seal |
+| 6 | Proof: the test and evaluation results below |
+| 7 | Beyond drafting: Review, Recover, Prove |
+| 8 | Impact and links |
+
+The deck is a single page at [docs/pitch/index.html](docs/pitch/index.html), served by GitHub Pages.
+
 ## Architecture
 
 ![Clausewright system architecture: browser, API with a deterministic core and AI agents, and the chain](docs/architecture.svg)
@@ -36,7 +92,7 @@ One term sheet drives everything. Fixed rules write the contract and hash it; th
 
 | Evaluation | Result |
 |---|---|
-| Backend tests (unit, property-based, API, agents with fake LLM) | **131 passed** |
+| Backend tests (unit, property-based, API, agents with fake LLM) | **133 passed** |
 | Solidity tests (unit, 512-run fuzz, 3 invariants: solvency, conservation, only-parties-paid) | **35 passed** |
 | Verifier mutation testing: 30 seeded inconsistencies across prose, schedules and chain | **30/30 detected** |
 | Compliance gate: 6 seeded legal defects | **6/6 blocked** before drafting |
@@ -86,11 +142,13 @@ contracts/  ClausewrightEscrow.sol, DemoINR.sol, Solidity tests, deploy and e2e 
 frontend/   React app: draft, review, recover, prove
 evals/      eval runner, labelled corpora, on-chain e2e, RESULTS.md
 samples/    sample legal outputs (contracts, Word files, notice, certificate, review, redline)
-docs/       architecture, AI workflow, escrow design, security, legal basis
+docs/       architecture, AI workflow, escrow design, security, legal basis, pitch deck (docs/pitch)
 ```
 
 ## Documents
 
+- [Demo video](https://youtu.be/xrd0M-bRYHM)
+- [Pitch deck](https://demonjd2026-afk.github.io/ai-for-lawyers-hackathon-clausewright/pitch/)
 - [Architecture](docs/ARCHITECTURE.md)
 - [AI workflows and models](docs/AI_WORKFLOW.md)
 - [Escrow design](docs/ESCROW.md)

@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clausewright · Pitch</title>
+<meta name="description" content="Clausewright: contracts that check themselves, then pay on time. Pitch for the HackIndia AI for Lawyers Hackathon 2026.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Geist:wght@400;500;600&family=Geist+Mono:wght@500&family=Newsreader:ital,opsz,wght@1,6..72,500&display=swap">
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; }
+[hidden] { display: none !important; }
+/* Layout: one fixed stage. A 3D security-print world sits behind; each slide is a station the camera
+   flies to, with its words in a left column (bottom sheet on phones). Single dark look by choice. */
+:root {
+  color-scheme: dark;
+  --ink: #06100c;         /* stage */
+  --ink-2: #0e1b15;       /* panels */
+  --line: #24382e;        /* hairlines */
+  --paper: #f3f1e7;       /* stamp-paper white, main text */
+  --mist: #a3b5aa;        /* secondary text */
+  --ok: #3ccb90;          /* green ink: verified */
+  --violet: #9a8bff;      /* violet ink: the product */
+  --rose: #ff6f9f;        /* rose ink: risk */
+  --gold: #f2b93b;        /* held in escrow */
+  --display: "Bricolage Grotesque", "Arial Narrow", Arial, sans-serif;
+  --body: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Geist Mono", ui-monospace, Menlo, Consolas, monospace;
+  --serif: "Newsreader", Georgia, serif;
+}
+html, body { height: 100%; }
+body { background: var(--ink); color: var(--paper); font: 400 17px/1.5 var(--body); overflow: hidden; }
+canvas#world { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+.scrim { position: fixed; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, rgb(6 16 12 / .94) 0%, rgb(6 16 12 / .82) 40%, rgb(6 16 12 / 0) 60%); }
+
+.deck { position: fixed; inset: 0; display: grid; grid-template-rows: 1fr auto;
+  padding-block: 20px 14px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.stage { position: relative; min-height: 0; }
+.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 18px;
+  padding-inline: clamp(0px, 3.4vw, 60px); max-width: min(50rem, 48vw); min-width: 0;
+  opacity: 0; visibility: hidden; transform: translateY(18px); transition: opacity .55s ease, transform .7s cubic-bezier(.2,.8,.2,1), visibility 0s .55s; }
+.slide.on { opacity: 1; visibility: visible; transform: none; transition-delay: .18s, .18s, 0s; }
+.slide > * { min-width: 0; }
+
+.eyebrow { font: 500 .78rem/1.2 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ok); display: flex; align-items: center; gap: 10px; }
+.eyebrow::before { content: ""; width: 26px; height: 2px; background: linear-gradient(90deg, var(--ok), var(--violet), var(--rose)); }
+h1, h2 { font-family: var(--display); font-weight: 800; letter-spacing: -.035em; line-height: .96; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(3.2rem, 7.3vw, 7.2rem); }
+h2 { font-size: clamp(2rem, 4.1vw, 3.7rem); }
+.tri { background: linear-gradient(90deg, #86e3bb, #b3a7ff 55%, #ff9dbd); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lede { font-size: clamp(1.05rem, 1.7vw, 1.45rem); line-height: 1.35; color: var(--paper); max-width: 34ch; margin: 0; }
+.lede em { font-family: var(--serif); font-style: italic; font-weight: 500; color: #c9f3df; }
+.meta { font: 500 .9rem/1.4 var(--mono); color: var(--mist); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.meta b { color: var(--paper); font-weight: 500; }
+
+ul.points { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; max-width: 46ch; }
+ul.points li { display: grid; grid-template-columns: 30px 1fr; gap: 12px; align-items: start; color: var(--mist); line-height: 1.4; }
+ul.points li b { color: var(--paper); font-weight: 600; }
+ul.points i { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; font: 500 .78rem var(--mono); font-style: normal; color: var(--ink); background: var(--c, var(--ok)); }
+
+.stat { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.stat strong { font: 800 clamp(2.4rem, 5.4vw, 4.6rem)/.9 var(--display); letter-spacing: -.03em; color: var(--rose); font-variant-numeric: tabular-nums; }
+.stat span { color: var(--mist); max-width: 26ch; font-size: .95rem; line-height: 1.35; }
+
+ol.flow { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; max-width: 48ch; }
+ol.flow li { display: grid; grid-template-columns: 96px 1fr; gap: 14px; padding: 10px 0; border-top: 1px solid var(--line); color: var(--mist); font-size: .98rem; line-height: 1.38; }
+ol.flow li:last-child { border-bottom: 1px solid var(--line); }
+ol.flow b { font: 500 .8rem/1.6 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--c, var(--ok)); }
+
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; max-width: 50rem; }
+.cell { border: 1px solid var(--line); background: rgb(14 27 21 / .78); border-radius: 14px; padding: 14px 16px; min-width: 0; }
+.cell strong { display: block; font: 800 clamp(1.7rem, 3.2vw, 2.7rem)/1 var(--display); letter-spacing: -.03em; color: var(--c, var(--ok)); font-variant-numeric: tabular-nums; }
+.cell span { display: block; margin-top: 6px; color: var(--mist); font-size: .86rem; line-height: 1.32; }
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; max-width: 52rem; }
+.trio .cell h3 { margin: 0 0 6px; font: 800 1.35rem/1 var(--display); letter-spacing: -.02em; color: var(--c); }
+.trio .cell p { margin: 0; color: var(--mist); font-size: .9rem; line-height: 1.38; }
+.links { display: grid; gap: 8px; }
+.links a { display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: baseline; color: var(--paper); text-decoration: none; font: 500 .98rem/1.3 var(--mono); overflow-wrap: anywhere; }
+.links a small { font: 500 .72rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--mist); }
+.links a:hover span, .links a:focus-visible span { color: var(--ok); text-decoration: underline; }
+.note { color: var(--mist); font-size: .86rem; max-width: 52ch; margin: 0; }
+
+.bar { display: flex; align-items: center; gap: 12px; padding-top: 10px; min-width: 0; }
+.bar button { font: 600 .86rem var(--body); color: var(--paper); background: rgb(14 27 21 / .86); border: 1px solid var(--line); border-radius: 10px; height: 38px; min-width: 38px; padding: 0 12px; cursor: pointer; }
+.bar button:hover { border-color: var(--violet); }
+.bar button:focus-visible, .dots button:focus-visible, .links a:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+.bar button:disabled { opacity: .35; cursor: default; }
+.dots { display: flex; gap: 6px; align-items: center; flex: 1; min-width: 0; }
+.dots button { flex: 1; max-width: 64px; min-width: 0; height: 22px; padding: 0; background: none; border: 0; border-radius: 0; position: relative; }
+.dots button::after { content: ""; position: absolute; left: 0; right: 0; top: 9px; height: 4px; border-radius: 2px; background: var(--line); transition: background .3s; }
+.dots button.done::after { background: #3d6b56; }
+.dots button.on::after { background: linear-gradient(90deg, var(--ok), var(--violet), var(--rose)); }
+.count, .clock { font: 500 .82rem var(--mono); color: var(--mist); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.clock.over { color: var(--rose); }
+.hint { font: 500 .8rem var(--mono); color: var(--mist); }
+kbd { font: 500 .74rem var(--mono); border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; color: var(--paper); background: var(--ink-2); }
+
+@media (max-width: 860px) {
+  .scrim { background: linear-gradient(0deg, rgb(6 16 12 / .96) 0%, rgb(6 16 12 / .9) 52%, rgb(6 16 12 / 0) 80%); }
+  .slide { max-width: none; justify-content: flex-end; gap: 12px; padding-bottom: 6px; }
+  body { font-size: 15.5px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .cell { padding: 10px 12px; }
+  .trio { grid-template-columns: 1fr; gap: 8px; }
+  ol.flow li { grid-template-columns: 74px 1fr; padding: 7px 0; font-size: .9rem; }
+  .links a { grid-template-columns: 1fr; gap: 0; }
+  .hint, .clock, #full { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .slide { transition: none; transform: none; } }
+</style>
+</head>
+<body>
+
+<canvas id="world" aria-hidden="true"></canvas>
+<div class="scrim"></div>
+
+<div class="deck">
+  <main class="stage" id="stage">
+    <section class="slide on" aria-label="Title">
+      <div class="eyebrow">HackIndia · AI for Lawyers Hackathon 2026 · Smart Contract Creation</div>
+      <h1>Clause<span class="tri">wright</span></h1>
+      <p class="lede">Contracts that <em>check themselves</em>, then pay on time.</p>
+      <div class="meta"><span><b>Jayanth Dolai</b></span><span>clausewright.onrender.com</span></div>
+      <p class="hint">Press <kbd>→</kbd> or <kbd>Space</kbd> to begin</p>
+    </section>
+
+    <section class="slide" aria-label="The problem">
+      <div class="eyebrow">The problem</div>
+      <h2>Small suppliers sign what they can't check, then wait to be paid.</h2>
+      <div class="stat"><strong>₹20,979 cr</strong><span>in delayed payments to micro and small enterprises, still pending before MSME Samadhaan on 14 Aug 2026.</span></div>
+      <ul class="points">
+        <li><i style="--c:var(--rose)">1</i><span><b>Clauses courts won't enforce.</b> Post-term non-competes, a one-sided arbitrator, penalty clauses: all common in templates.</span></li>
+        <li><i style="--c:var(--rose)">2</i><span><b>Payment terms the law forbids.</b> The MSMED Act caps credit at 45 days. Contracts still say 60 or 90.</span></li>
+        <li><i style="--c:var(--rose)">3</i><span><b>AI that invents its sources.</b> General chat tools draft fluently and cite cases that don't exist.</span></li>
+      </ul>
+    </section>
+
+    <section class="slide" aria-label="The idea">
+      <div class="eyebrow">The idea</div>
+      <h2>One term sheet. Two outputs. <span class="tri">Proven identical.</span></h2>
+      <ul class="points">
+        <li><i>A</i><span><b>A contract</b> drafted from fixed rules, where every check cites the provision or judgment it comes from.</span></li>
+        <li><i style="--c:var(--gold)">B</i><span><b>An escrow</b> that holds the fee and releases it milestone by milestone, with settings generated from the same terms.</span></li>
+        <li><i style="--c:var(--violet)">=</i><span><b>A verifier</b> that reads the escrow back from the chain and compares it with the words on the page.</span></li>
+      </ul>
+    </section>
+
+    <section class="slide" aria-label="How it works">
+      <div class="eyebrow">How it works</div>
+      <h2>Five steps, one source of truth.</h2>
+      <ol class="flow">
+        <li><b>Describe</b><span>Plain English or Hinglish. AI extracts the terms, and each value must be backed by the user's own words.</span></li>
+        <li><b>Check</b><span>12 rule families test the terms against Indian law. Every finding carries its authority and a one-click fix.</span></li>
+        <li><b style="--c:var(--violet)">Draft</b><span>Clauses are generated the same way every time, then fingerprinted with SHA-256.</span></li>
+        <li><b style="--c:var(--gold)">Bind</b><span>The escrow's settings are printed inside the contract as Schedule B and deployed.</span></li>
+        <li><b>Verify</b><span>Text, schedule and chain are compared in 63 separate checks.</span></li>
+      </ol>
+    </section>
+
+    <section class="slide" aria-label="What is new">
+      <div class="eyebrow">What's new</div>
+      <h2>The contract and its code cannot drift apart.</h2>
+      <ul class="points">
+        <li><i>63</i><span><b>A three-way check.</b> 46 checks tie the text to Schedule B; 17 more are read back from the chain. One mismatch fails the seal.</span></li>
+        <li><i style="--c:var(--violet)">AI</i><span><b>AI on a short leash.</b> The reviewer may cite only from a verified list of authorities. Anything else is dropped before you see it.</span></li>
+        <li><i style="--c:var(--rose)">#</i><span><b>A seal you can read.</b> The rosette is engraved from the document's hash. Change one character and the picture changes.</span></li>
+      </ul>
+    </section>
+
+    <section class="slide" aria-label="Proof">
+      <div class="eyebrow">Proof, not promises</div>
+      <h2>Every claim has a test behind it.</h2>
+      <div class="grid">
+        <div class="cell"><strong>30 / 30</strong><span>seeded contract-versus-code mismatches caught by the verifier</span></div>
+        <div class="cell"><strong>6 / 6</strong><span>legal defects blocked before a word is drafted</span></div>
+        <div class="cell" style="--c:var(--violet)"><strong>100%</strong><span>reviewer precision, 96% recall, on 46 labelled clauses</span></div>
+        <div class="cell" style="--c:var(--violet)"><strong>21 / 21</strong><span>AI intake fields correct; an injection attempt ignored</span></div>
+        <div class="cell" style="--c:var(--gold)"><strong>168</strong><span>automated tests: 133 on the service, 35 on the escrow</span></div>
+        <div class="cell" style="--c:var(--gold)"><strong>63 / 63</strong><span>checks agree on the live site, end to end</span></div>
+      </div>
+      <p class="note">Results and the scripts that produce them are in the repository under evals.</p>
+    </section>
+
+    <section class="slide" aria-label="Beyond drafting">
+      <div class="eyebrow">Beyond drafting</div>
+      <h2>Three more tools for the life of a contract.</h2>
+      <div class="trio">
+        <div class="cell" style="--c:var(--violet)"><h3>Review</h3><p>Paste a contract you were sent. Each risky clause shows what's wrong, what to ask for, and the law behind it.</p></div>
+        <div class="cell" style="--c:var(--gold)"><h3>Recover</h3><p>Unpaid invoices become a section 16 interest claim, worked out to the paisa, and a demand notice.</p></div>
+        <div class="cell" style="--c:var(--ok)"><h3>Prove</h3><p>Check a document against its recorded fingerprint and draft the certificate courts ask for with electronic records.</p></div>
+      </div>
+    </section>
+
+    <section class="slide" aria-label="Impact">
+      <div class="eyebrow">Impact</div>
+      <h2>A lawful contract and <span class="tri">payment that enforces itself</span>, in minutes.</h2>
+      <p class="lede" style="max-width:40ch;font-size:clamp(1rem,1.4vw,1.2rem);color:var(--mist)">Built for the freelancer and the micro studio who can't keep a lawyer on call. It is live now, with no sign-up and no wallet.</p>
+      <div class="links">
+        <a href="https://clausewright.onrender.com/" target="_blank" rel="noopener"><small>Live app</small><span>clausewright.onrender.com</span></a>
+        <a href="https://github.com/demonjd2026-afk/ai-for-lawyers-hackathon-clausewright" target="_blank" rel="noopener"><small>Source code</small><span>github.com/demonjd2026-afk/ai-for-lawyers-hackathon-clausewright</span></a>
+        <a href="https://www.linkedin.com/in/jayanth-dolai-7b115213a/" target="_blank" rel="noopener"><small>LinkedIn</small><span>linkedin.com/in/jayanth-dolai-7b115213a</span></a>
+      </div>
+      <p class="note">Press <b style="color:var(--paper)">Watch the demo</b> on the site and it runs every step for you. Thank you.</p>
+    </section>
+  </main>
+
+  <nav class="bar" aria-label="Slides">
+    <button id="prev" aria-label="Previous slide">←</button>
+    <div class="dots" id="dots"></div>
+    <span class="count" id="count">1 / 8</span>
+    <span class="clock" id="clock" title="Time since you started, against the 5-minute limit">0:00 / 5:00</span>
+    <button id="full" aria-label="Full screen">Full screen</button>
+    <button id="next" aria-label="Next slide">→</button>
+  </nav>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+  const slides = [...document.querySelectorAll(".slide")], N = slides.length;
+  const dots = document.getElementById("dots"), count = document.getElementById("count"), clock = document.getElementById("clock");
+  const prev = document.getElementById("prev"), next = document.getElementById("next"), full = document.getElementById("full");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let cur = 0, startedAt = null;
+  slides.forEach((s, i) => { const b = document.createElement("button"); b.setAttribute("aria-label", "Go to slide " + (i + 1) + ": " + s.getAttribute("aria-label")); b.onclick = () => go(i); dots.append(b); });
+  function go(i) {
+    i = Math.max(0, Math.min(N - 1, i)); if (i !== cur && startedAt === null) startedAt = performance.now();
+    cur = i;
+    slides.forEach((s, k) => s.classList.toggle("on", k === i));
+    [...dots.children].forEach((d, k) => { d.classList.toggle("on", k === i); d.classList.toggle("done", k < i); });
+    count.textContent = (i + 1) + " / " + N; prev.disabled = i === 0; next.disabled = i === N - 1;
+  }
+  go(0);
+  prev.onclick = () => go(cur - 1); next.onclick = () => go(cur + 1);
+  addEventListener("keydown", (e) => {
+    if (["ArrowRight", "PageDown", " ", "Enter"].includes(e.key) && e.target.tagName !== "BUTTON" && e.target.tagName !== "A") { e.preventDefault(); go(cur + 1); }
+    else if (e.key === "ArrowRight") go(cur + 1);
+    else if (["ArrowLeft", "PageUp", "Backspace"].includes(e.key)) go(cur - 1);
+    else if (e.key === "Home") go(0); else if (e.key === "End") go(N - 1);
+    else if (e.key.toLowerCase() === "f") full.click();
+  });
+  let sx = null;
+  addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; }, { passive: true });
+  addEventListener("touchend", (e) => { if (sx === null) return; const dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 50) go(cur + (dx < 0 ? 1 : -1)); sx = null; }, { passive: true });
+  full.onclick = () => { const p = document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); if (p && p.catch) p.catch(() => {}); };
+  setInterval(() => {
+    const s = startedAt === null ? 0 : Math.floor((performance.now() - startedAt) / 1000);
+    clock.textContent = Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0") + " / 5:00"; clock.classList.toggle("over", s > 300);
+  }, 500);
+
+  // ---------- the 3D world ----------
+  if (!window.THREE) return;
+  const T = THREE, canvas = document.getElementById("world");
+  let renderer;
+  try { renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: false }); } catch (e) { return; }
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  renderer.setClearColor(0x06100c, 1);
+  const scene = new T.Scene(); scene.fog = new T.FogExp2(0x06100c, 0.021);
+  const cam = new T.PerspectiveCamera(46, 1, 0.1, 400);
+  const GAP = 46, INK = [0x3ccb90, 0x9a8bff, 0xff6f9f], GOLD = 0xf2b93b, PAPER = 0xf3f1e7;
+  const station = (i) => { const g = new T.Group(); g.position.set(0, 0, -i * GAP); scene.add(g); return g; };
+  const lineMat = (c, o = 0.85) => new T.LineBasicMaterial({ color: c, transparent: true, opacity: o, blending: T.AdditiveBlending, depthWrite: false });
+  const tickers = [];
+
+  // A guilloche rosette with real depth: each band is a braid of sine-modulated rings that also weave in z.
+  function rosette(scale, seed) {
+    const g = new T.Group(), spec = [[4.2, 0.62, 13, 7, 0.55], [3.1, 0.55, 11, 6, 0.5], [2.1, 0.46, 8, 5, 0.42]];
+    spec.forEach(([R, A, P, S, D], b) => {
+      const band = new T.Group();
+      for (let s = 0; s < S; s++) {
+        const pts = [], shift = seed + (s / S) * Math.PI * 2;
+        for (let i = 0; i <= 420; i++) {
+          const t = (i / 420) * Math.PI * 2, r = R + A * Math.sin(P * t + shift);
+          pts.push(new T.Vector3(r * Math.cos(t), r * Math.sin(t), D * Math.cos(P * t + shift)));
+        }
+        band.add(new T.Line(new T.BufferGeometry().setFromPoints(pts), lineMat(INK[b], 0.7)));
+      }
+      band.userData.spin = (b % 2 ? -1 : 1) * (0.05 + b * 0.025);
+      g.add(band);
+    });
+    g.scale.setScalar(scale);
+    tickers.push((t, dt) => g.children.forEach((b) => { b.rotation.z += b.userData.spin * dt; }));
+    return g;
+  }
+
+  function paperTexture(title, rows, stamp) {
+    const c = document.createElement("canvas"); c.width = 512; c.height = 680; const x = c.getContext("2d");
+    x.fillStyle = "#f3f1e7"; x.fillRect(0, 0, 512, 680);
+    const band = x.createLinearGradient(0, 0, 512, 0); band.addColorStop(0, "#0f9f6c"); band.addColorStop(.5, "#6a55e8"); band.addColorStop(1, "#dc2f6c");
+    x.fillStyle = band; x.fillRect(0, 0, 512, 12);
+    x.fillStyle = "#14231b"; x.font = "600 34px Georgia, serif"; x.fillText(title, 40, 78);
+    let y = 122;
+    rows.forEach((r) => {
+      x.fillStyle = "#14231b"; x.font = "600 21px Georgia, serif"; x.fillText(r, 40, y); y += 20;
+      x.fillStyle = "#b9bfb4"; for (let k = 0; k < 3; k++) { x.fillRect(40, y + k * 15, 432 - (k === 2 ? 150 : (k * 37) % 60), 6); }
+      y += 66;
+    });
+    if (stamp) { x.save(); x.translate(330, 520); x.rotate(-0.22); x.strokeStyle = stamp[1]; x.fillStyle = stamp[1]; x.lineWidth = 6; x.strokeRect(-130, -42, 260, 84); x.font = "800 40px Arial, sans-serif"; x.textAlign = "center"; x.fillText(stamp[0], 0, 15); x.restore(); }
+    const tx = new T.CanvasTexture(c); tx.anisotropy = 4; return tx;
+  }
+  function paper(w, title, rows, stamp) {
+    const m = new T.Mesh(new T.PlaneGeometry(w, w * 680 / 512), new T.MeshBasicMaterial({ map: paperTexture(title, rows, stamp), side: T.DoubleSide }));
+    return m;
+  }
+  function label(text, color, size = 1) {
+    const c = document.createElement("canvas"); c.width = 512; c.height = 96; const x = c.getContext("2d");
+    x.font = "600 46px 'Geist Mono', Menlo, monospace"; x.fillStyle = color; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(text, 256, 50);
+    const s = new T.Sprite(new T.SpriteMaterial({ map: new T.CanvasTexture(c), transparent: true, depthWrite: false })); s.scale.set(4.2 * size, 0.79 * size, 1); return s;
+  }
+  const glow = (c, r) => new T.Mesh(new T.SphereGeometry(r, 16, 16), new T.MeshBasicMaterial({ color: c }));
+
+  // dust through the whole flight path, for depth while travelling
+  { const n = 1500, p = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) { p[i * 3] = (Math.random() - .5) * 90; p[i * 3 + 1] = (Math.random() - .5) * 50; p[i * 3 + 2] = 30 - Math.random() * (N * GAP + 40); }
+    const g = new T.BufferGeometry(); g.setAttribute("position", new T.BufferAttribute(p, 3));
+    scene.add(new T.Points(g, new T.PointsMaterial({ color: 0x8fb5a2, size: 0.09, transparent: true, opacity: 0.7, depthWrite: false }))); }
+
+  // 1 · title: the seal
+  station(0).add(rosette(1.25, 0.4));
+
+  // 2 · problem: contracts adrift, stamped with what is wrong with them
+  { const g = station(1), bad = [["VOID", "#dc2f6c"], ["90 DAYS", "#dc2f6c"], ["UNPAID", "#dc2f6c"], null, ["ONE-SIDED", "#dc2f6c"], null, ["PENALTY", "#dc2f6c"], null, null];
+    bad.forEach((st, i) => {
+      const p = paper(2.5, "Agreement", ["1. Payment", "2. Non-compete", "3. Arbitration", "4. Delay"], st);
+      const a = (i / bad.length) * Math.PI * 2, r = 3.2 + (i % 3) * 1.5;
+      p.position.set(Math.cos(a) * r * 0.95, Math.sin(a) * r * 0.8, -(i % 4) * 2.4); p.rotation.set((i % 3 - 1) * 0.35, (i % 5 - 2) * 0.3, (i % 4 - 1.5) * 0.25);
+      p.userData = { y: p.position.y, k: i }; g.add(p);
+    });
+    tickers.push((t) => g.children.forEach((p) => { p.position.y = p.userData.y + Math.sin(t * 0.5 + p.userData.k) * 0.28; p.rotation.y += 0.0016 * (p.userData.k % 2 ? 1 : -1); })); }
+
+  // 3 · idea: the contract, the vault, and the threads that bind them
+  { const g = station(2);
+    const p = paper(4.2, "Service Agreement", ["4. Fees and Payment", "3. Delivery and Acceptance", "5. Escrow of Fees", "Schedule B"]); p.position.set(-3.7, 0, 0); p.rotation.y = 0.38; g.add(p);
+    const vault = new T.Group(); vault.position.set(4.3, 0, 0);
+    vault.add(new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(3.6, 4.4, 3.6)), lineMat(GOLD, 0.95)));
+    const core = new T.Mesh(new T.IcosahedronGeometry(1.05, 1), new T.MeshBasicMaterial({ color: GOLD, wireframe: true, transparent: true, opacity: 0.75 })); vault.add(core); g.add(vault);
+    const pulses = [];
+    [1.55, 0.55, -0.45, -1.45].forEach((y, i) => {
+      const curve = new T.CubicBezierCurve3(new T.Vector3(-1.9, y, 0.7), new T.Vector3(0.2, y + 1.2, 2.4), new T.Vector3(1.6, y * 0.4 - 0.8, 1.6), new T.Vector3(2.5, y * 0.62, 0));
+      g.add(new T.Line(new T.BufferGeometry().setFromPoints(curve.getPoints(60)), lineMat(INK[i % 3], 0.9)));
+      const s = glow(INK[i % 3], 0.1); g.add(s); pulses.push([s, curve, i * 0.23]);
+    });
+    tickers.push((t, dt) => { core.rotation.y += dt * 0.5; core.rotation.x += dt * 0.2; vault.rotation.y = Math.sin(t * 0.3) * 0.25; pulses.forEach(([s, c, o]) => s.position.copy(c.getPoint((t * 0.32 + o) % 1))); }); }
+
+  // 4 · how it works: five gates in depth, a pulse passing through each
+  { const g = station(3), names = ["DESCRIBE", "CHECK", "DRAFT", "BIND", "VERIFY"], cols = [0x3ccb90, 0x3ccb90, 0x9a8bff, GOLD, 0x3ccb90], css = ["#3ccb90", "#3ccb90", "#9a8bff", "#f2b93b", "#3ccb90"];
+    const rings = names.map((n, i) => {
+      const pts = []; for (let k = 0; k <= 6; k++) { const a = (k / 6) * Math.PI * 2 + Math.PI / 6; pts.push(new T.Vector3(Math.cos(a) * 2.5, Math.sin(a) * 2.5, 0)); }
+      const ring = new T.Line(new T.BufferGeometry().setFromPoints(pts), lineMat(cols[i], 0.9)); ring.position.set(-3.2 + i * 1.7, 0.3, 5 - i * 3.4);
+      const l = label(n, css[i], 0.8); l.position.set(0, -3.05, 0); ring.add(l); g.add(ring); return ring;
+    });
+    const dot = glow(0xffffff, 0.14); g.add(dot);
+    tickers.push((t, dt) => {
+      const u = (t * 0.22) % 1, f = u * (rings.length - 1), a = Math.floor(f), b = Math.min(rings.length - 1, a + 1);
+      dot.position.lerpVectors(rings[a].position, rings[b].position, f - a);
+      rings.forEach((r, i) => { r.material.opacity = 0.45 + 0.5 * Math.max(0, 1 - Math.abs(f - i)); });
+    }); }
+
+  // 5 · what's new: text, schedule and chain, with 63 checks lighting along the edges
+  { const g = station(4), V = [new T.Vector3(0, 3.4, 0), new T.Vector3(-3.7, -2.5, 0), new T.Vector3(3.7, -2.5, 0)], names = ["CONTRACT TEXT", "SCHEDULE B", "ON CHAIN"], css = ["#f3f1e7", "#9a8bff", "#f2b93b"], cols = [PAPER, 0x9a8bff, GOLD];
+    V.forEach((v, i) => { const n = new T.Mesh(new T.IcosahedronGeometry(0.72, 0), new T.MeshBasicMaterial({ color: cols[i], wireframe: true })); n.position.copy(v); g.add(n);
+      const l = label(names[i], css[i], 0.78); l.position.copy(v).add(new T.Vector3(0, i === 0 ? 1.3 : -1.3, 0)); g.add(l); tickers.push((t, dt) => { n.rotation.y += dt * 0.6; n.rotation.x += dt * 0.3; }); });
+    g.add(new T.LineLoop(new T.BufferGeometry().setFromPoints(V), lineMat(0x4f6b5d, 0.8)));
+    const cells = [], per = [46, 9, 8], edges = [[0, 1], [1, 2], [2, 0]];
+    edges.forEach(([a, b], e) => { for (let k = 0; k < per[e]; k++) { const m = new T.Mesh(new T.BoxGeometry(0.11, 0.11, 0.11), new T.MeshBasicMaterial({ color: 0x2a4035 }));
+      m.position.lerpVectors(V[a], V[b], (k + 1) / (per[e] + 1)); g.add(m); cells.push(m); } });
+    g.userData.cells = cells;
+    tickers.push((t) => { const lit = cur === 4 ? Math.floor(((t * 0.38) % 1.35) * cells.length) : 0; cells.forEach((m, k) => m.material.color.setHex(k < lit ? 0x3ccb90 : 0x2a4035)); g.rotation.y = Math.sin(t * 0.25) * 0.3; }); }
+
+  // 6 · proof: 168 tests as a field of blocks, rising in a wave
+  { const g = station(5), cols = 21, rows = 8, geo = new T.BoxGeometry(0.3, 1, 0.3), blocks = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const idx = r * cols + c;
+      const m = new T.Mesh(geo, new T.MeshBasicMaterial({ color: idx < 133 ? 0x3ccb90 : GOLD, transparent: true, opacity: 0.88 })); m.position.set((c - cols / 2) * 0.46, 0, (r - rows / 2) * 0.46); g.add(m); blocks.push(m); }
+    g.rotation.x = 0.5; g.position.y = -1.2;
+    tickers.push((t) => blocks.forEach((m) => { const h = 0.5 + 0.9 * (0.5 + 0.5 * Math.sin(t * 1.3 + m.position.x * 0.8 + m.position.z * 0.9)); m.scale.y = h; m.position.y = h / 2; })); }
+
+  // 7 · beyond drafting: three documents on a carousel
+  { const g = station(6), ring = new T.Group(); g.add(ring);
+    [["Review", ["Clause 2 · High risk", "Ask for", "Authority", "Clause 3 · Void"], ["CHECKED", "#6a55e8"]], ["Recover", ["Invoice PN-2026-014", "Section 16 interest", "You can claim", "Demand notice"], ["CLAIM", "#b37a00"]], ["Prove", ["SHA-256", "Identical", "Section 63 certificate", "Part A"], ["MATCH", "#0f9f6c"]]]
+      .forEach(([t, rows, st], i) => { const p = paper(3.3, t, rows, st), a = (i / 3) * Math.PI * 2; p.position.set(Math.sin(a) * 4.2, 0, Math.cos(a) * 4.2); p.rotation.y = a; ring.add(p); });
+    tickers.push((t, dt) => { ring.rotation.y += dt * 0.28; }); }
+
+  // 8 · impact: the seal again, pressed
+  { const g = station(7); const r = rosette(1.1, 2.1); g.add(r);
+    const pts = []; for (let k = 0; k <= 96; k++) { const a = (k / 96) * Math.PI * 2; pts.push(new T.Vector3(Math.cos(a) * 6.4, Math.sin(a) * 6.4, 0)); }
+    const ring = new T.Line(new T.BufferGeometry().setFromPoints(pts), lineMat(0x3ccb90, 0.9)); g.add(ring);
+    tickers.push((t) => { const u = (t * 0.35) % 1; ring.scale.setScalar(0.7 + u * 0.6); ring.material.opacity = 0.9 * (1 - u); }); }
+
+  // camera: fly to each station; objects sit right of the words on wide screens, above them on narrow ones
+  let wide = true, pose = [];
+  const look = new T.Vector3(), want = new T.Vector3(), wantLook = new T.Vector3(), mouse = { x: 0, y: 0 };
+  function layout() {
+    const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
+    renderer.setSize(w, h, false); cam.aspect = w / h; cam.fov = w / h < 0.9 ? 62 : 46; cam.updateProjectionMatrix();
+    wide = w > 860;
+    const dist = [21, 21, 19, 21, 19, 18, 19, 22];
+    pose = dist.map((d, i) => wide
+      ? { p: new T.Vector3(-7.4, 0.4 + (i % 2 ? 0.9 : -0.5), -i * GAP + d), l: new T.Vector3(-7.0, 0, -i * GAP) }
+      : { p: new T.Vector3(0, -5.6, -i * GAP + d + 2), l: new T.Vector3(0, -5.2, -i * GAP) });
+  }
+  layout(); addEventListener("resize", layout);
+  cam.position.copy(pose[0].p); look.copy(pose[0].l);
+  addEventListener("pointermove", (e) => { mouse.x = e.clientX / innerWidth - 0.5; mouse.y = e.clientY / innerHeight - 0.5; });
+
+  const clk = new T.Clock(); let t = 0;
+  function frame() {
+    const dt = Math.min(clk.getDelta(), 0.05); t += dt;
+    if (!reduce) tickers.forEach((f) => f(t, dt));
+    const k = reduce ? 1 : 1 - Math.exp(-dt * 2.6);
+    want.copy(pose[cur].p); want.x += mouse.x * 1.2; want.y -= mouse.y * 0.8; wantLook.copy(pose[cur].l);
+    cam.position.lerp(want, k); look.lerp(wantLook, k); cam.lookAt(look);
+    renderer.render(scene, cam);
+    requestAnimationFrame(frame);
+  }
+  if (reduce) tickers.forEach((f) => f(1.7, 0));
+  frame();
+})();
+</script>
+</body>
+</html>
